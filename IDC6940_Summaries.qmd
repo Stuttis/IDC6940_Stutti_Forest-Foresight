@@ -1,7 +1,7 @@
 ---
 title: "Random Forest Summaries"
-subtitle: "Summarizing Articles found on Random Forest application"
-author: "Stutti (Advisor: Dr. Seals)"
+subtitle: "Summaries on various articles found on Random Forest method and it's application"
+author: "Stutti Smit-Johnson (Advisor: Dr. Seals)"
 date: "2024-09-08" 
 format:
   html:
