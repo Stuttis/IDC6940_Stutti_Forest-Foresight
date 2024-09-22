@@ -1,0 +1,67 @@
+---
+title: "Power of Random Forest in Business"
+subtitle: "Datasets evaluated"
+author: "Stutti (Advisor: Dr. Seals)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Dataset Summary 1
+
+The source data contains sales transactions for a span of 48 months and comes from SSI, a Florida based B2B2C type company. The company offers custom packaging in the food industry. It offers custom branding and design as well as actual supply of the products. Customers may have transactional based sales where each order serves as it’s own agreement or customers may have a long term contract where they agree to purchase a product or several products through the course of a six month period or a year, for example. Once these agreements are established, the customer instructs it’s distributor to purchase from SSI and deliver to them. So, the purchase order, in reality comes from this distributor and not the end client.
+
+The data available in a .csv file was read into RStudio and below are some of the statistical summaries of the data. There are 33,818 observations and 17 variables in the data.
+
+```{r}
+library(tidyverse)
+library(knitr)
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
+  
+summary(SaleData)
+# str(SaleData)
+
+library(dplyr)
+glimpse(SaleData)
+
+#install.packages("psych", repos = "https://cloud.r-project.org")
+#install.packages("psych")
+library(psych)
+describe(SaleData)
+
+kable(head(SaleData))
+
+#coefficients(m1)
+#summary(m1)
+```
+
+## Dateset Summary 2
+
+The second dataset was taken from https://vincentarelbundock.github.io/Rdatasets. Pizza sales dataset is a synthetic dataset that describes pizza sales for a pizza place somewhere in the US. While the contents are artificial, the ingredients used to make the pizzas are far from it. There are 32 different pizzas that fall into 4 different categories: "classic" (classic pizzas: 'You probably had one like it before, but never like this!'), "chicken" (pizzas with chicken as a major ingredient: 'Try the Southwest Chicken Pizza! You'll love it!'), "supreme" (pizzas that try a little harder: 'My Soppressata pizza uses only the finest salami from my personal salumist!'), and, "veggie" (pizzas without any meats whatsoever: 'My Five Cheese pizza has so many cheeses, I can only offer it in Large Size!').
+
+The data available in a .csv file was read into RStudio and below are some of the statistical summaries of the data. There are 49,574 observations and 8 variables in the data.
+
+
+```{r}
+Pizza <- read_csv('/Users/ss/Downloads/pizzaplace.csv') 
+  
+summary(Pizza)
+
+glimpse(Pizza)
+
+describe(Pizza)
+
+kable(head(Pizza))
+
+```
