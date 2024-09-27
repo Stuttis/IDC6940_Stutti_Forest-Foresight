@@ -1,0 +1,144 @@
+---
+title: "Power of Random Forest in Business"
+subtitle: "Data Summary and Table 1"
+author: "Stutti (Advisor: Dr. Seals)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+```{r}
+
+# Load necessary libraries
+library(tidyverse)
+library(dplyr)
+
+#Load data
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv')
+
+# Filter out returns/credits (Price <= 0)
+SaleData1 <- SaleData %>%
+  filter(UnitPrice > 0, TotalPrice > 0)
+
+# Collect basic summary
+library(psych)
+describe(SaleData1)
+
+# Sum of distinct SalesOrderID for each SalesOrderStatus
+distinct_order_count_by_status <- SaleData1 %>%
+  group_by(SalesOrderStatus) %>%
+  summarize(Total_Orders = n_distinct(SalesOrderID))
+
+# Sum of distinct SalesOrderID for each Substrate
+distinct_order_count_by_substrate <- SaleData1 %>%
+  group_by(Substrate) %>%
+  summarize(Total_Orders = n_distinct(SalesOrderID))
+
+# Sum of distinct SalesOrderID for each Status and Substrate
+distinct_order_count_by_status_and_substrate <- SaleData1 %>%
+  group_by(Substrate, SalesOrderStatus) %>%
+  summarize(Total_Orders = n_distinct(SalesOrderID))
+
+# List of products to exclude
+exclude_products <- c("OUTBOUND SHIPPING", "Outbound Shipping", "Shipping Charge", "SHIPPING CHARGE")  
+
+
+# Calculate top 5 products by distinct SalesOrderID for each SalesOrderStatus, excluding certain products
+# top_5_products_by_status <- SaleData1 %>%
+#   filter(!Product %in% exclude_products) %>%             # Exclude specific products
+#   group_by(SalesOrderStatus, Product) %>%                 # Group by status and product
+#   summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%  # Count distinct SalesOrderID
+#   arrange(SalesOrderStatus, desc(Distinct_Order_Count)) %>%   # Sort by status and order count
+#   group_by(SalesOrderStatus) %>%                             # Regroup by status
+#   slice_head(n = 5)                                           # Get top 5 products for each status
+
+
+# 1: Identify the top 5 products by distinct SalesOrderID
+top_5_products <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>% 
+  group_by(Product) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(desc(Distinct_Order_Count)) %>%
+  slice_head(n = 5) %>%    # Get top 5 products by distinct SalesOrderID
+  pull(Product)            # Extract the product names
+
+# 1.2: Count orders by status for these top 5 products
+top_5_products_by_status <- SaleData1 %>%
+  filter(Product %in% top_5_products) %>%   # Filter for the top 5 products
+  group_by(Product, SalesOrderStatus) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(Product, desc(Distinct_Order_Count))
+
+# 2: Identify the top 5 customers by distinct SalesOrderID
+top_5_customers <- SaleData1 %>%
+  group_by(Class) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(desc(Distinct_Order_Count)) %>%
+  slice_head(n = 5) %>%    # Get top 5 customers by distinct SalesOrderID
+  pull(Class)            # Extract the customer names
+
+# 2.2: Count orders by status for these top 5 customers
+top_5_customers_by_status <- SaleData1 %>%
+  filter(Class %in% top_5_customers) %>%   # Filter for the top 5 customers
+  group_by(Class, SalesOrderStatus) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(Class, desc(Distinct_Order_Count))
+
+# 3: Identify the top 5 distributors by distinct SalesOrderID
+top_5_distributors <- SaleData1 %>%
+  group_by(OPCO) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(desc(Distinct_Order_Count)) %>%
+  slice_head(n = 5) %>%    # Get top 5 distributors by distinct SalesOrderID
+  pull(OPCO)            # Extract the distributors names
+
+# 3.2: Count orders by status for these top 5 distributors
+top_5_distributors_by_status <- SaleData1 %>%
+  filter(OPCO %in% top_5_distributors) %>%   # Filter for the top 5 distributors
+  group_by(OPCO, SalesOrderStatus) %>%
+  summarize(Distinct_Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(OPCO, desc(Distinct_Order_Count))
+
+# 4: Summarize total revenue by Substrate
+total_revenue_by_substrate <- SaleData1 %>%
+  group_by(Substrate) %>%
+  summarize(Total_Revenue = sum(TotalPrice, na.rm = TRUE)) %>%  # Sum the TotalPrice
+  arrange(desc(Total_Revenue))   # Sort by total revenue in descending order
+
+# 5: Key stats on qtyordered, unitPrice and TotalPrice
+summary(SaleData1$qtyOrdered)
+
+# 6: Key stats on unitPrice 
+UnitPrice_summary <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>%  # Exclude specific products
+ summary(UnitPrice)
+print(UnitPrice_summary)
+
+# 7: Key stats on TotalPrice
+TotalPrice_summary <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>%  # Exclude specific products
+ summary(TotalPrice)
+print(TotalPrice_summary)
+
+
+# Calculate top 5 customers and their SalesOrderStatus
+# top_5_customers_by_status <- SaleData1 %>%
+#   group_by(SalesOrderStatus, Class) %>%       # Group by status and product
+#   summarize(Class_Count = n()) %>%            # Count occurrences of each product
+#   arrange(SalesOrderStatus, desc(Class_Count)) %>%  # Sort by status and product count
+#   group_by(SalesOrderStatus) %>%                # Regroup by status to get top 5 for each
+#   slice_head(n = 5)
+
+```
+
+
