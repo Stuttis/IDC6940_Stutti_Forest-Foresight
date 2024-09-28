@@ -141,4 +141,103 @@ print(TotalPrice_summary)
 
 ```
 
+# Data Viz
+```{r}
+# 1: Convert DateFulfilled to Date if necessary
+sales_data$DateFulfilled <- as.Date(sales_data$DateFulfilled)
 
+# Line chart for TotalPrice over time
+ggplot(SaleData1, aes(x = DateFulfilled, y = TotalPrice)) +
+  geom_line(color = "blue") +
+  labs(title = "Total Revenue Over Time", x = "Date Fulfilled", y = "Total Price") +
+  theme_minimal()
+
+# 2: Box plot for TotalPrice by Substrate
+ggplot(SaleData1, aes(x = Substrate, y = TotalPrice)) +
+  geom_boxplot() +
+  labs(title = "Total Price by Substrate", x = "Substrate", y = "Total Price") +
+  theme_minimal()
+
+# 3: Create a pie chart for Substrate
+status_count <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>% 
+  group_by(Substrate) %>%
+  summarize(Count = n())
+
+ggplot(status_count, aes(x = "", y = Count, fill = Substrate)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  labs(title = "Proportion of Sales Order Items by Substrate") +
+  theme_void()  # Removes axis labels
+
+# 4: Create a treemap of total sales by product
+install.packages("treemap")
+library(treemap)
+
+# Create a treemap of total sales by product
+treemap(SaleData1,
+        index = "Product",
+        vSize = "TotalPrice",
+        title = "Treemap of Total Sales by Product",
+        palette = "Set3")
+
+# 5: Create a histogram of totalprice
+sales_filter <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>%
+  filter(TotalPrice > 2000) %>% # Remove values causing skew
+  filter(TotalPrice < 30000) # Remove values causing skew
+  
+ggplot(sales_filter, aes(x = TotalPrice)) +
+  geom_histogram(binwidth = 200, fill = "salmon", color = "black") +
+  labs(title = "Distribution of Total Sales", x = "Total Price", y = "Count") +
+  theme_minimal()
+
+# 6: Create heatmap - Summarize total sales by product and substrate
+sales_heatmap <- SaleData1 %>%
+  filter(!Substrate %in% NA) %>%
+  group_by(Substrate) %>%
+  summarize(TotalSales = sum(TotalPrice, na.rm = TRUE))
+
+ggplot(sales_heatmap, aes(x = "", y = Substrate, fill = TotalSales)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "darkblue") +
+  labs(title = "Heatmap of Sales by Substrate", y = "Substrate") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# 7: Sales Over Time
+library(lubridate)
+library(scales)
+
+# Convert DateFulfilled in date format
+# SaleData1$DateFulfilled <- ymd(SaleData1$DateFulfilled) # Did not work
+SaleData1$parsed_dates <- parse_date_time(SaleData1$DateFulfilled, orders = c("ymd", "mdy", "dmy", "Ymd", "Y-m-d"))
+SaleData1$parsed_dates <- ymd(SaleData1$parsed_dates)
+
+# Identify which entries failed to parse
+# failed_dates <- SaleData1[is.na(SaleData1$parsed_dates), "DateFulfilled"]
+# unique(failed_dates)
+
+
+# Summarize total sales by quarter
+sales_over_time <- SaleData1 %>%
+  mutate(nDate = floor_date(parsed_dates, "quarter")) %>%
+  group_by(nDate) %>%
+  summarize(TotalSales = sum(TotalPrice, na.rm = TRUE))
+
+# Create a new variable for quarters
+sales_over_time$Quarter <- quarter(sales_over_time$nDate)
+
+sum(is.na(SaleData1$parsed_dates))  # Count NA values
+
+# Plot total sales over time with quarterly labels
+ggplot(sales_over_time, aes(x = nDate, y = TotalSales)) +
+  geom_line(color = "blue") +
+  geom_point() +
+  scale_x_date(date_labels = "Q%q %Y", date_breaks = "3 months") +
+  # scale_x_date(date_labels = "Q%q %Y", date_breaks = "1 quarter") +
+  # scale_x_date(labels = label_date("%Y Q%q"), date_breaks = "1 quarter") +  # Correctly format quarters
+  labs(title = "Total Sales Over Time (Quarterly)", x = "Quarter", y = "Total Sales") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
