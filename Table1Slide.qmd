@@ -10,19 +10,29 @@ bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
 self-contained: true
 execute: 
+  echo: false
   warning: false
   message: false
 editor: 
   markdown: 
     wrap: 72
 ---
-## Table 1 {.smaller .scrollable}
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(scales)
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+library(treemap)
+```
+
+## Table 1 - SSI Sales Data {.smaller .scrollable}
 
 <style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+.tg  {border-collapse:collapse;border-spacing:0;border-style: solid;border-width: 1px;border-color: black;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
   overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:13px;
   font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
 .tg .tg-bobw{font-weight:bold;text-align:center;vertical-align:bottom}
 .tg .tg-7zrl{text-align:left;vertical-align:bottom}
@@ -50,7 +60,7 @@ editor:
     <td class="tg-7zrl"> </td>
   </tr>
   <tr>
-    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;<br>Smoothie Island&nbsp;&nbsp;&nbsp;</td>
+    <td class="tg-7zrl">Smoothie Island</td>
     <td class="tg-8d8j">1701 (22.43%)</td>
     <td class="tg-8d8j">455 (62.07%)</td>
     <td class="tg-8d8j">1246 (18.18%)</td>
@@ -200,3 +210,156 @@ editor:
     <td class="tg-8d8j">$143,084.74</td>
   </tr>
 </tbody></table>
+
+# Data Visualization1
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+#Load data
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv')
+
+# Filter out returns/credits (Price <= 0)
+SaleData1 <- SaleData %>%
+  filter(UnitPrice > 0, TotalPrice > 0)
+
+# List of products to exclude
+exclude_products <- c("OUTBOUND SHIPPING", "Outbound Shipping", "Shipping Charge", "SHIPPING CHARGE")  
+
+# 1: Bar chart: Top 20 Products by Qty Ordered
+product_qty <- SaleData1 %>%
+  group_by(Product) %>%
+  summarise(TotalQuantityOrdered = sum(qtyOrdered, na.rm = TRUE)) %>%
+  arrange(desc(TotalQuantityOrdered)) %>%
+  slice(1:20)
+
+ggplot(product_qty, aes(x = reorder(Product, TotalQuantityOrdered), y = TotalQuantityOrdered)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme_minimal() +
+  coord_flip() +
+  labs(title = "Top 20 Products by Total Quantity Ordered", x = "Product", y = "Total Quantity Ordered")
+```
+# Data Visualization2
+
+```{r}
+library(scales)
+# 2: Create a pie chart for TotalSales by Substrate
+substrate_sales <- SaleData1 %>%
+  filter(!Substrate %in% NA) %>%
+  group_by(Substrate) %>%
+  summarise(TotalSubstrateSales = sum(TotalPrice, na.rm = TRUE)) %>%
+  arrange(desc(TotalSubstrateSales)) 
+
+# configure sales to currency
+substrate_sales$legend_label <- paste(substrate_sales$Substrate, "-", dollar(substrate_sales$TotalSubstrateSales))
+
+ggplot(substrate_sales, aes(x = "", y = TotalSubstrateSales, fill = legend_label)) +
+  geom_bar(stat = "identity", width = 1) +  # Create bar chart
+  coord_polar("y") +  # Convert bar chart to pie chart
+  labs(title = "Proportion of Sales by Substrate", fill = "Substrate and Sales") +  # Customize title and legend
+  theme_void()  # Remove axis labels and background
+```
+
+# Data Visualization3
+```{r}
+# 3: Create a treemap of total sales by product
+# Set CRAN mirror
+#options(repos = c(CRAN = "https://cloud.r-project.org/"))
+# Install the package
+#install.packages("treemap")
+library(treemap)
+
+product_sales <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>%
+  group_by(Product) %>%
+  summarise(pSales = sum(TotalPrice, na.rm = TRUE)) %>%
+  arrange(desc(pSales)) %>%
+  slice(1:30)
+# Create a treemap of total sales by product
+treemap(product_sales,
+        index = "Product",
+        vSize = "pSales",
+        title = "Treemap of Total Sales by Product",
+        palette = "Pastel1") # "PuBu"
+```
+# Data Visualization4
+```{r}
+# 4: Create a histogram of totalprice across sales orders
+sales_filter <- SaleData1 %>%
+  filter(!Product %in% exclude_products) 
+  # filter(TotalPrice > 2000) %>% # Remove values causing skew
+  # filter(TotalPrice < 30000) # Remove values causing skew
+  
+Q1 <- quantile(sales_filter$TotalPrice, 0.25, na.rm = TRUE)
+Q3 <- quantile(sales_filter$TotalPrice, 0.75, na.rm = TRUE)
+IQR_value <- IQR(sales_filter$TotalPrice, na.rm = TRUE)
+
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+filtered_data_IQR <- sales_filter %>%
+  filter(TotalPrice >= lower_bound & TotalPrice <= upper_bound)
+
+ggplot(filtered_data_IQR, aes(x = TotalPrice)) +
+  geom_histogram(binwidth = 100, fill = "lightblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Total Prices (Filtered by IQR)", x = "Total Price", y = "Frequency")
+```
+# Data Visualization5
+```{r}
+# 5: Create heatmap - Top distributors by Orders
+top_dist <- SaleData1 %>%
+  group_by(OPCO) %>%
+  summarise(Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(desc(Order_Count)) %>%
+  slice(1:20)
+
+ggplot(top_dist, aes(x = "", y = OPCO, fill = Order_Count)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "darkblue") +
+  labs(title = "Heatmap of Distributors by Orders", y = "Distributors") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+# Data Visualization6
+```{r}
+# 7: Sales Over Time
+library(lubridate)
+install.packages("scales")
+library(scales)
+
+# Convert DateFulfilled in date format
+### SaleData1$DateFulfilled <- ymd(SaleData1$DateFulfilled) ### Did not work
+SaleData1$parsed_dates <- parse_date_time(SaleData1$DateFulfilled, orders = c("ymd", "mdy", "dmy", "Ymd", "Y-m-d"))
+SaleData1$parsed_dates <- ymd(SaleData1$parsed_dates)
+
+# Identify which entries failed to parse
+# failed_dates <- SaleData1[is.na(SaleData1$parsed_dates), "DateFulfilled"]
+# unique(failed_dates)
+
+
+# Summarize total sales by quarter
+sales_over_time <- SaleData1 %>%
+  mutate(nDate = floor_date(parsed_dates, "quarter")) %>%
+  group_by(nDate) %>%
+  summarize(TotalSales = sum(TotalPrice, na.rm = TRUE))
+
+# Create a new variable for quarters
+sales_over_time$Quarter <- quarter(sales_over_time$nDate)
+
+# sum(is.na(SaleData1$parsed_dates))  # Count NA values
+
+# Plot total sales over time with quarterly labels
+ggplot(sales_over_time, aes(x = nDate, y = TotalSales)) +
+  geom_line(color = "blue") +
+  geom_point() +
+  scale_x_date(date_labels = "Q%q %Y", date_breaks = "3 months") +
+  # scale_x_date(date_labels = "Q%q %Y", date_breaks = "1 quarter") +
+  # scale_x_date(labels = label_date("%Y Q%q"), date_breaks = "1 quarter") +  # Correctly format quarters
+  labs(title = "Total Sales Over Time (Quarterly)", x = "Quarter", y = "Total Sales") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
