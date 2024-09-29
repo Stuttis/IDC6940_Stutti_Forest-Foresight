@@ -327,7 +327,7 @@ ggplot(top_dist, aes(x = "", y = OPCO, fill = Order_Count)) +
 ```{r}
 # 7: Sales Over Time
 library(lubridate)
-install.packages("scales")
+#install.packages("scales")
 library(scales)
 
 # Convert DateFulfilled in date format
