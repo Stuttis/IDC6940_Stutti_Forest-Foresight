@@ -1,0 +1,300 @@
+---
+title: "Power of Random Forest in Business"
+subtitle: "Methodology"
+author: "Stutti (Advisor: Dr. Seals)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+# Decision trees – Random Forest
+
+**Introduction**
+
+Decision trees, a machine learning algorithm, are flow chart classifiers with nodes and branches, similar to a tree-like structure. Each internal node represents a “test” on an attribute (feature). Each branch represents the outcome of the test. Each leaf node represents a class label; decision taken after computing all attributes. The path taken from the root to the leaf represents classification rules. These trees have a lot of advantages such as mirroring human decision making, being able to handle numerical and categorical data, performs well with large datasets, de-emphasizes irrelevant features, etc. However, there are some limitations. A small change in the training data can results in a large change in final predictions, the algorithm cannot guarantee returning globally optimal tree and overfitting. Overfitting occurs when overly-complex trees do not generalize well from the training data. We can “prune” decision trees which reduces the depth of complex trees and eliminates small classes. However, pruning is expensive and counter-intuitive in that we are trying to fix a bad model. Instead, we can build a better model a.k.a Random forests. Ensemble methods are the key behind Random Forests. They are motivated by averaging techniques which means combining outputs from multiple trees to improve accuracy and generalization.
+
+Construction of the forest - Each tree in the Random Forest is a CART (Classification and Regression Tree), meaning the trees are binary and split the data into two subsets at each node. This means a tree might split on Client, then split the resulting data on Product, and then split again on Quantity Ordered. Thus, every path from root to leaf node represents unique conditions that lead to a prediction, for example total sales value. 
+
+Forest Size - One hyperparameter (parameter whose value controls the learning process) in the forest is the number of trees (ntree) in the forest. It is common to use a larger number of trees, example 100, 500, etc., to reduce variance. We may start with 100 trees in our forest and each tree will provide a bit different prediction for the target variable example Total Price. Our final output will be based on the aggregate of all trees in our forest. The more trees, the better however the trade-off is computational cost.
+
+**Methods**
+
+There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. A few are described below:
+
+1.	**Bootstrap Aggregation (Bagging):** generating multiple subsets of training data by randomly sampling with replacement. For example, Tree 1 may include sales records 1, 2, 3, 4, and 10 multiple times, while Tree 2 may include records 4 and 10 also. Each decision tree in the forest is trained on a different bootstrap sample. Each tree can independently "overfit" its bootstrap sample, but when combined, the average prediction is much more accurate and less prone to overfitting.
+
+2.	**Random Feature Selection:** At each node of every tree, instead of considering all features for the best split, Random Forest randomly selects a subset of features. This means that at one node, the algorithm may look at Product and Quantity Ordered to make the split, while at another node, it may look at Client and Total Price. This method reduces correlation among the trees, making the ensemble more robust and accurate. This also prevents any single feature from dominating the decision process in every tree.
+
+3.	**Feature Importance:** This ranks features based on their contribution to accuracy. Random forests can calculate feature importance by analyzing how often a feature is used to split data across all trees as well as how well it improves the purity of tree nodes. There are two methods used for feature importance calculation:
+  a.	*Gini Importance:* This method measures a feature’s contribution to reducing the Gini Impurity           (Classification) or reducing the Mean Squared Error (Regression) across the forest.
+  b.	*Permutation Importance:* This method measures decrease in the model’s accuracy. A feature leading       to a significant drop in accuracy is considered important.
+      For example, Product and Client may prove the most important features for predicting Total Price        but Order Status and Delivery Date may be less important.
+
+4.	**Out-of-Bag (OOB) Error Estimation:** This provides an internal method of validating the model’s accuracy without needed a separate test set. Since each tree is trained on a bootstrap sample, some data points are left out, called Out-of-Bag samples. These OOB samples are used to get unbiased estimates of model accuracy without the need for a separate validation set. For example, if record 100 of our data was not used to train Tree 1, Tree 1 can still predict Total Price for that record, and we can compare the prediction to the actual Total Price.
+
+**We will investigate some of these methodologies of Random Forest Algorithm**
+
+## Load Dataset and R libraries needed
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+#library(psych)
+#library(knitr)
+library(caret)  # for splitting data to train-test 
+library(randomForest)
+
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
+```
+
+## Preprocess Dataset
+The dataset has sales returns and credits to the customer that we are excluding in order to avoid false outcomes and predictions. There are also line items related to shipping costs that we are excluding. As an example, there may have been out of the norm activity when SSI encountered inbound shipment delays and SSI needed to airfreight product to customers at a higher than normal shipping rates. We do not want skewed results and hence, we will omit this activity. 
+
+```{r}
+# List of records to exclude for shipping
+exclude_products <- c("OUTBOUND SHIPPING", "Outbound Shipping", "Shipping Charge", "SHIPPING CHARGE") 
+
+# Filter out returns/credits (Price <= 0) and shipping charges
+SaleData1 <- SaleData %>%
+  filter(UnitPrice > 0, TotalPrice > 0, !Product %in% exclude_products)
+
+# colSums(is.na(SaleData1))
+# summary(SaleData1$TotalPrice)
+
+```
+## Model Creation
+
+We will create two regression Random Forest models to predict Total Price of sales activity using several features from SSI Sales dataset.
+
+First model will be created using tree size of 100. The second, tree size of 300. We will handle missing values during model training and not exclude from final output for consistency. We will set feature importance and proximity measure within the models for further analysis. Lastly, since our dataset is large, we will split the data into smaller samples.
+
+*Model 1*
+```{r}
+# Split the data into training and testing sets
+set.seed(6079)
+trainIndex <- createDataPartition(SaleData1$TotalPrice, p = 0.8, list = FALSE, times = 1)
+trainData <- SaleData1[trainIndex, ]
+testData  <- SaleData1[-trainIndex, ]
+
+
+# Fit a Random Forest model to predict TotalPrice (regression)
+rf_model1 <- randomForest(TotalPrice ~ OPCO + Product + Substrate + RequestedDeliveryDate + qtyOrdered +
+                            UnitPrice + Class, 
+                            data = trainData, 
+                            ntree = 100,  # Number of trees (default is 500)
+                            mtry = 3,
+                            importance = TRUE, 
+                            proximity = TRUE,
+                            na.action = na.exclude) # call to handle missing values
+
+# mem.maxVSize() # 18432
+```
+*Model 2*
+```{r}
+# Fit a Random Forest model to predict TotalPrice (regression)
+rf_model2 <- randomForest(TotalPrice ~ OPCO + Product + Substrate + RequestedDeliveryDate + qtyOrdered +
+                          UnitPrice + Class, 
+                          data = trainData, 
+                          ntree = 300,  # Number of trees (default is 500)
+                          mtry = 3,
+                          importance = TRUE, 
+                          proximity = TRUE,
+                          na.action = na.exclude) # call to handle missing values
+```
+
+Let's check the different methods on each model; one with 100 trees and second with 300 trees.
+
+## Feature Importance *- We will check importance of each feature in predicting TotalPrice*
+
+After fitting the models in prior step, we will run the 'importance' function in R to determine feature importance.
+
+```{r}
+# Get importance of each feature
+importance(rf_model1)
+importance(rf_model2)
+
+# Plot feature importance
+varImpPlot(rf_model1, main="Model 1-Feature Importance")
+varImpPlot(rf_model2, main="Model 2-Feature Importance")
+
+```
+In **Model 1** impact on model accuracy, qtyOrdered has the highest impact on model accuracy at 69.54 followed by UnitPrice at 29.46. Class (which are the Clients) have a meaningful impact, indicating that different Clients may have varying purchasing behaviors. Product and Substrate have moderate impacts on model accuracy at 7.44 and 6.95. RequestedDeliveryDate and OPCO have the smallest impacts at 5.12 and 5.76.
+
+In **Model 1** impact on decision splitting, qtyOrdered (825654752549) has the highest impact on mode purity. It was heavily used to create splits in the trees. UnitPrice (109321324910) has the next substantial impact followed by Class (45282563002) and Product (39484584516). Differences in Client or Product characteristics help refine the prediction model. The rest Substrate, RequestedDeliveryDate and OPCO have less of an effect helping the model create useful splits.
+
+**Model 2** impact on model accuracy - There is a large change in % increase mean squared error for qtyOrdered between model 1 (69.54) and 2 (115.56). This means the relationship between qtyOrdered and TotalPrice has become even more predictive, making it an even stronger feature. Similar to qtyOrdered, the UnitPrice (67.47) is now playing a much bigger role in model accuracy. The % increase MSE for Product more than doubled (7.44 vs 18.24). This implies that specific products being ordered play a much larger role in determining TotalPrice. Substrate, RequestedDeliveryDate and OPCO followed in the pattern, almost doubling in MSE from model 1. Class, however, increased only slightly (8.56 to 10.42). This indicates that differences in Client are less important compared to the large increases or other features.
+
+**Model 2** impact on decision splitting - qtyOrdered, UnitPrice, Substrate and Class all slightly decreased which means they contribute slightly less to node purity. Product and RequestedDeliveryDate slightly increased, which means they are now helping the model make better splits compared to the previous model and OPCO had a slightly bigger increase which means it plays a bigger role in node splitting.
+
+*Model 2 relies more heavily on qtyOrdered and UnitPrice for accurate predictions, and it better incorporates factors like Product, Substrate, and RequestedDeliveryDate to refine predictions.*
+
+## Out-of-Bag (OOB) Error Estimate *- We will check model 1 and 2 predictive performance. We can investigate the model output to check it.*
+
+We will not run the *OOB Error for classification* since we don't have any features that fit that definition. For example, Sales Order Status only has 2 unique values and they are not numeric or logical. Another feature Substrate is the same where there are no logical values.
+
+
+```{r}
+# Get OOB error estimate
+print(rf_model1)
+print(rf_model2)
+
+```
+*Model 1* OOB MSE is 1,120,284, which represents the average squared difference between the predicted and actual TotalPrice for the observations not used to build the respective trees. This means that on average, the squared difference between the predicted and true values of TotalPrice is about 1.12 million. The variance of 97.56% indicates that model 1 is performing very well, as it is able to explain nearly all the variance in TotalPrice based on the features provided.
+*Model 2* OOB MSE of 1,099,138 indicates that it is slightly more accurate, as the squared residuals are lower, which means its predictions are closer to the actual values of TotalPrice. The percent variance of 97.61% is just slightly higher which means it captures just a bit more of the variability in the data than model 1.
+
+
+## Proximity Matrix *- We will measure how often pairs of observations end up in the same terminal nodes across all trees.*
+
+*Model 1*
+```{r}
+proximity_matrix <- rf_model1$proximity
+
+# Randomly sample 100 observations
+sample_indices <- sample(nrow(proximity_matrix), 1000)
+proximity_matrix_sample1 <- proximity_matrix[sample_indices, sample_indices]
+
+heatmap(proximity_matrix_sample1, 
+        main = "Proximity Matrix Heatmap (Sampled-Model 1)", 
+        xlab = "Observations", 
+        ylab = "Observations", 
+        col = heat.colors(256), 
+        scale = "none")
+
+
+```
+*Model 2*
+```{r}
+proximity_matrix2 <- rf_model2$proximity
+
+# Randomly sample 1000 observations
+sample_indices2 <- sample(nrow(proximity_matrix2), 1000)
+proximity_matrix_sample2 <- proximity_matrix2[sample_indices2, sample_indices2]
+
+heatmap(proximity_matrix_sample2, 
+        main = "Proximity Matrix Heatmap (Sampled-Model 2)", 
+        xlab = "Observations", 
+        ylab = "Observations", 
+        col = heat.colors(256), 
+        scale = "none")
+```
+Observations that frequently fall into the same leaf nodes (high proximity) are more similar, while observations with low proximity are less alike. The color intensity in the heatmap represents the proximity values between observations. For both models, there are dark colors indicating higher proximity, meaning that those two observations were often classified into the same leaf node across the trees in the random forest.
+
+## Predict Performance Model 1 *- We will make predictions on our test data.*
+
+*Clean our test data set*
+```{r}
+# Filter out rows with NA in test data
+# colSums(is.na(testData))
+# Remove rows with missing values
+testData <- testData %>% drop_na(Substrate)
+```
+
+
+```{r}
+# Predict TotalPrice on new data
+predictions1 <- predict(rf_model1, newdata = testData)
+
+# First, create the plot for Actual values
+plot(testData$TotalPrice, predictions1, 
+     col = "blue",  # Set the color to blue
+     main = "Actual vs Predicted TotalPrice (Model 1)",  # Add a title
+     xlab = "Actual TotalPrice",  # Label for x-axis
+     ylab = "Predicted TotalPrice",  # Label for y-axis
+     pch = 1)  # Plot character (16 is for solid circle)
+
+```
+## Predict Performance Model 2 *- We will make predictions on our test data.*
+
+```{r}
+# Predict TotalPrice on new data
+predictions2 <- predict(rf_model2, newdata = testData)
+
+# First, create the plot for Actual values
+plot(testData$TotalPrice, predictions2, 
+     col = "red",  # Set the color to blue
+     main = "Actual vs Predicted TotalPrice (Model 1)",  # Add a title
+     xlab = "Actual TotalPrice",  # Label for x-axis
+     ylab = "Predicted TotalPrice",  # Label for y-axis
+     pch = 1)  # Plot character (16 is for solid circle)
+
+```
+Looking at the prediction plots for both model 1 and 2, it appears the points are very close to or overlapping along the diagonal line which indicates that the model is making accurate predictions. There doesn't appear to be a significant difference between the two models.
+
+## Residuals and Error Metrics *- We will calculate difference between actual and predicted values and error metrics like Mean Squared Error (MSE) or Root Mean Squared Error (RMSE) to quantify the model's performance*
+
+*Model 1 vs Model 2 Residuals*
+```{r}
+# Filter out rows with NA in either TotalPrice or predictions
+valid_indices <- !is.na(testData$TotalPrice) & !is.na(predictions1)
+
+# Calculate residuals - model 1
+residuals1 <- testData$TotalPrice - predictions1
+# print(residuals1)
+
+# plot the residuals - model 1
+plot(predictions1, residuals1, main = "Residuals vs Predictions (Model 1)", 
+     xlab = "Predicted TotalPrice", ylab = "Residuals", pch = 16)
+abline(h = 0, col = "blue")
+
+# Calculate residuals - model 1
+residuals2 <- testData$TotalPrice - predictions2
+# print(residuals1)
+
+# plot the residuals - model 1
+plot(predictions2, residuals2, main = "Residuals vs Predictions (Model 2)", 
+     xlab = "Predicted TotalPrice", ylab = "Residuals", pch = 10)
+abline(h = 0, col = "red")
+
+```
+The residuals for both models are almost identical, they are evenly spread around the blue and red y lines (y = 0). This indicates that our model is performing well. There are a few outliers that may be due to special circumstances, but nothing that challenges our models from these graphs.
+
+**Model 1 vs Model 2 MSE**
+```{r}
+# Calculate MSE and RMSE - model 1
+mse1 <- mean(residuals1^2)
+rmse1 <- sqrt(mse1)
+
+# Calculate MSE and RMSE - model 2
+mse2 <- mean(residuals2^2)
+rmse2 <- sqrt(mse2)
+
+# print(mse1)
+# print(rmse1)
+
+# print(mse2)
+# print(rmse2)
+
+# mean(SaleData1$TotalPrice) # 3430.742
+# mean(testData$TotalPrice) # 3372.455
+
+```
+The Root Mean Squared Error (RMSE) in Model 1 is 1791.60, which means that on average, Model 1 predictions of TotalPrice are off by about 1,791.60 dollars. Very close to that, the RMSE in Model 2 is 1763.69, which means that on average, Model 2 predictions of TotalPrice are off by about 1,763.69 dollars. Considering the mean TotalPrice is around 3400 dollars, we have a very high prediction error. We must handle the outliers and rerun our models.
+
+### Analysis
+
+By selecting 3 random features at each split for both models, we prevented overfitting and introduced diversity in the trees. By considering fewer features at each split, the trees became more independent of each other.
+
+The overall feature importance of qtyOrdered and UnitPrice grew significantly, making them the most dominant features in the second model.
+Product and Substrate became more relevant for prediction, indicating that variations in product types and substrates are contributing more to price differences.
+OPCO and RequestedDeliveryDate also grew in importance, suggesting that operational and delivery factors might be affecting pricing more in the new dataset.
+
+OOB Error: The OOB MSE of 1,120,284 shows that, while the model explains a large proportion of the variance, there is still some error in the predictions. However, given that the % variance explained is 97.56%, this OOB error is relatively small in context. The predictions are quite close to the actual values, though there's some deviation reflected in the OOB error.
+Model Fit: With 97.56% variance explained, the model is doing an excellent job of fitting the data. This indicates that the features you are using (such as OPCO, Product, Substrate, qtyOrdered, etc.) are highly predictive of the TotalPrice.
+The high % variance explained (97.56%) means your model is capturing the relationships in the data very well.
+The second model (300 trees) is marginally better in terms of both accuracy (lower OOB MSE) and fit (higher % variance explained). The difference, however, is relatively small, which suggests that increasing the number of trees beyond 100 does improve the model but not dramatically.
+
+Contradictory to the above, the RMSE was higher than expected for TotalPrice. I would recommend looking for outliers and omitting before rerunning the model.
+
+The choice of 300 trees provided slightly better results, but considering the computational cost of training more trees, we may choose this model if accuracy is critical. If speed or resource efficiency is more important, the 100-tree model is sufficient, as the difference in performance is minor.
+
