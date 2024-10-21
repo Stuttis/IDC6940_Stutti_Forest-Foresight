@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}</style>
 
 
 <script>/*!
@@ -3179,20 +3199,18 @@ vertical-align: -.125em;
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                            <span class="at">mtry =</span> <span class="dv">3</span>,</span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                            <span class="at">na.action =</span> na.exclude) <span class="co"># call to handle missing values</span></span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first tree from the model </span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># k=1 indicates extracting first tree from forest</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># lableVar labels the nodes for visibility</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co">#getTree(rf_model1, k = 1, labelVar = TRUE)</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a simple decision tree (just for visualization purposes)</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>tree_model <span class="ot">&lt;-</span> <span class="fu">rpart</span>(TotalPrice <span class="sc">~</span> OPCO <span class="sc">+</span> Product <span class="sc">+</span> Substrate <span class="sc">+</span> qtyOrdered <span class="sc">+</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>                            UnitPrice <span class="sc">+</span> Class, </span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data =</span> trainData)</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the decision tree</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_model, <span class="at">main =</span> <span class="st">&quot;Decision Tree Visualization&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first tree from the model </span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co"># k=1 indicates extracting first tree from forest</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># lableVar labels the nodes for visibility</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">#getTree(rf_model1, k = 1, labelVar = TRUE)</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a simple decision tree (just for visualization purposes)</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>tree_model <span class="ot">&lt;-</span> <span class="fu">rpart</span>(TotalPrice <span class="sc">~</span> OPCO <span class="sc">+</span> Product <span class="sc">+</span> Substrate <span class="sc">+</span> qtyOrdered <span class="sc">+</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                            UnitPrice <span class="sc">+</span> Class, </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data =</span> trainData)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the decision tree</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_model, <span class="at">main =</span> <span class="st">&quot;Decision Tree Visualization&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -3221,21 +3239,44 @@ vertical-align: -.125em;
 </section>
 <section id="statistical-programming" class="level2">
 <h2 class="anchored" data-anchor-id="statistical-programming">Statistical Programming</h2>
-<p>Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio “Cranberry Hibiscus” Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. <strong>TotalPrice</strong> was modeled using the randomForest method using OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class as predictors.</p>
+<p>Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio “Cranberry Hibiscus” Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. <strong>TotalPrice</strong> was modeled as a function of OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class using the randomForest method.</p>
 <p>Several R packages were installed, including the randomForest package available within R. Some of the packages and their libraries and functions are described below.</p>
-<p><strong>• dplyr:</strong> A fast, consistent tool for working with data frame like objects, both in memory and out of memory.</p>
-<p><strong>• knitr:</strong> This package implements a programming paradigm that intermingles code chunks (for computing) with prose (for documentation) in the same document. When compiling the document, this package is responsible for executing the code chunks, and the results from computing (text or graphics) are automatically written to the output along with the prose.</p>
-<p><strong>• ggplot2:</strong> R package for producing visualizations of data. Unlike many graphics packages, ggplot2 uses a conceptual framework based on the grammar of graphics.</p>
-<p><strong>• treemap:</strong> A treemap is a space-filling visualization of hierarchical structures. This package offers great flexibility to draw treemaps and was used to display a treemap of Total Sales by Product.</p>
-<p><strong>• caret:</strong> Short for Classification And REgression Training, this package contains functions to streamline the model training process for complex regression and classification problems.</p>
-<p><strong>• randomForest:</strong> This package contains the algorithm that implements Breiman’s random forest algorithm (based on Breiman and Cutler’s original Fortran code) for classification and regression.</p>
+<p><strong>• dplyr:</strong> A fast, consistent tool for working with data frame like objects, both in memory and out of memory. <span class="citation" data-cites="cite_dplyr">(<a href="#ref-cite_dplyr" role="doc-biblioref">Wickham et al. 2023</a>)</span></p>
+<p><strong>• knitr:</strong> This package implements a programming paradigm that intermingles code chunks (for computing) with prose (for documentation) in the same document. When compiling the document, this package is responsible for executing the code chunks, and the results from computing (text or graphics) are automatically written to the output along with the prose. <span class="citation" data-cites="cite_knitr">(<a href="#ref-cite_knitr" role="doc-biblioref">Xie 2014</a>)</span></p>
+<p><strong>• ggplot2:</strong> R package for producing visualizations of data. Unlike many graphics packages, ggplot2 uses a conceptual framework based on the grammar of graphics. <span class="citation" data-cites="cite_ggplot2">(<a href="#ref-cite_ggplot2" role="doc-biblioref">Wickham 2016</a>)</span></p>
+<p><strong>• treemap:</strong> A treemap is a space-filling visualization of hierarchical structures. This package offers great flexibility to draw treemaps and was used to display a treemap of Total Sales by Product. <span class="citation" data-cites="cite_treemap">(<a href="#ref-cite_treemap" role="doc-biblioref">Tennekes 2023</a>)</span></p>
+<p><strong>• caret:</strong> Short for Classification And REgression Training, this package contains functions to streamline the model training process for complex regression and classification problems. <span class="citation" data-cites="cite_caret">(<a href="#ref-cite_caret" role="doc-biblioref">Kuhn and Max 2008</a>)</span></p>
+<p><strong>• randomForest:</strong> This package contains the algorithm that implements Breiman’s random forest algorithm (based on Breiman and Cutler’s original Fortran code) for classification and regression. <span class="citation" data-cites="cite_RF">(<a href="#ref-cite_RF" role="doc-biblioref">Liaw and Wiener 2002</a>)</span></p>
 <p><strong>• createDataPartition:</strong> This is a function from the caret package that was used to partition or split the data for training and testing.</p>
-<p><strong>• importance:</strong> This is a extractor function for variable importance measures as produced by the randomForest algorithm.</p>
-<p><strong>• predict:</strong> This is a generic function in R to run predictions from the results of various model fitting functions. The model was the randomForest model in this case and using the trained data, a new test data set was used to make predictions.</p>
+<p><strong>• importance:</strong> This is a extractor function for variable importance measures as produced by the randomForest algorithm. <span class="citation" data-cites="cite_RF">(<a href="#ref-cite_RF" role="doc-biblioref">Liaw and Wiener 2002</a>)</span></p>
+<p><strong>• predict:</strong> This is a generic function in R to run predictions from the results of various model fitting functions. The model was the randomForest model in this case and using the trained data, a new test data set was used to make predictions. [<span class="citation" data-cites="cite_R">R Core Team (<a href="#ref-cite_R" role="doc-biblioref">2024</a>)</span></p>
+
 </section>
 </section>
 
-</main>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-cite_caret" class="csl-entry" role="listitem">
+Kuhn, and Max. 2008. <span>“Building Predictive Models in r Using the Caret Package.”</span> <em>Journal of Statistical Software</em> 28 (5): 1–26. <a href="https://doi.org/10.18637/jss.v028.i05">https://doi.org/10.18637/jss.v028.i05</a>.
+</div>
+<div id="ref-cite_RF" class="csl-entry" role="listitem">
+Liaw, Andy, and Matthew Wiener. 2002. <span>“Classification and Regression by randomForest.”</span> <em>R News</em> 2 (3): 18–22. <a href="https://CRAN.R-project.org/doc/Rnews/">https://CRAN.R-project.org/doc/Rnews/</a>.
+</div>
+<div id="ref-cite_R" class="csl-entry" role="listitem">
+R Core Team. 2024. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-cite_treemap" class="csl-entry" role="listitem">
+Tennekes, Martijn. 2023. <em>Treemap: Treemap Visualization</em>. <a href="https://CRAN.R-project.org/package=treemap">https://CRAN.R-project.org/package=treemap</a>.
+</div>
+<div id="ref-cite_ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-cite_dplyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Romain François, Lionel Henry, Kirill Müller, and Davis Vaughan. 2023. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.
+</div>
+<div id="ref-cite_knitr" class="csl-entry" role="listitem">
+Xie, Yihui. 2014. <span>“Knitr: A Comprehensive Tool for Reproducible Research in <span>R</span>.”</span> In <em>Implementing Reproducible Computational Research</em>, edited by Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/CRC.
+</div>
+</div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

@@ -21,7 +21,7 @@ editor:
 
 ## Methods
 
-There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. I decided to run Random Forest Regression method because it performs well with large datasets, de-emphasizes irrelevant features and avoid overfitting as compared to traditional decision tree contruction.
+There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. I decided to run Random Forest Regression method because it performs well with large datasets, de-emphasizes irrelevant features and avoid overfitting as compared to traditional decision tree contruction. [@Rokach_undated-sg]
 
 ## Model Creation
 
@@ -90,8 +90,6 @@ rf_model1 <- randomForest(TotalPrice ~ OPCO + Product + Substrate +
                             mtry = 3,
                             na.action = na.exclude) # call to handle missing values
 
-
-
 # Extract the first tree from the model 
 # k=1 indicates extracting first tree from forest
 # lableVar labels the nodes for visibility
@@ -123,26 +121,28 @@ Both models were evaluated using the test dataset. Feature importance was examin
 
 ## Statistical Programming
 
-Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio "Cranberry Hibiscus" Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. **TotalPrice** was modeled using the randomForest method using OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class as predictors. 
+Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio "Cranberry Hibiscus" Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. **TotalPrice** was modeled as a function of OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class using the randomForest method. 
 
 Several R packages were installed, including the randomForest package available within R. Some of the packages and their libraries and functions are described below.
 
 **•	dplyr:** A fast, consistent tool for working with data frame like objects, both in memory and out   of memory.
+[@cite_dplyr]
 
-**•	knitr:** This package implements a programming paradigm that intermingles code chunks (for          computing) with prose (for documentation) in the same document. When compiling the document,      this package is responsible for executing the code chunks, and the results from computing (text   or graphics) are automatically written to the output along with the prose.
+**•	knitr:** This package implements a programming paradigm that intermingles code chunks (for          computing) with prose (for documentation) in the same document. When compiling the document,      this package is responsible for executing the code chunks, and the results from computing (text   or graphics) are automatically written to the output along with the prose. [@cite_knitr]
 
-**•	ggplot2:** R package for producing visualizations of data. Unlike many graphics packages, ggplot2   uses a conceptual framework based on the grammar of graphics. 
+**•	ggplot2:** R package for producing visualizations of data. Unlike many graphics packages, ggplot2   uses a conceptual framework based on the grammar of graphics. [@cite_ggplot2]
 
-**•	treemap:** A treemap is a space-filling visualization of hierarchical structures. This package      offers great flexibility to draw treemaps and was used to display a treemap of Total Sales by     Product.
+**•	treemap:** A treemap is a space-filling visualization of hierarchical structures. This package      offers great flexibility to draw treemaps and was used to display a treemap of Total Sales by     Product. [@cite_treemap]
 
-**•	caret:** Short for Classification And REgression Training, this package contains functions to       streamline the model training process for complex regression and classification problems.
+**•	caret:** Short for Classification And REgression Training, this package contains functions to       streamline the model training process for complex regression and classification problems. [@cite_caret]
 
-**•	randomForest:** This package contains the algorithm that implements Breiman's random forest         algorithm (based on Breiman and Cutler's original Fortran code) for classification and            regression.
+**•	randomForest:** This package contains the algorithm that implements Breiman's random forest         algorithm (based on Breiman and Cutler's original Fortran code) for classification and            regression. [@cite_RF]
 
 **•	createDataPartition:** This is a function from the caret package that was used to partition or      split the data for training and testing.
 
-**•	importance:** This is a extractor function for variable importance measures as produced by the      randomForest algorithm.
+**•	importance:** This is a extractor function for variable importance measures as produced by the      randomForest algorithm. [@cite_RF]
 
-**•	predict:** This is a generic function in R to run predictions from the results of various model     fitting functions. The model was the randomForest model in this case and using the trained data,   a new test data set was used to make predictions.
+**•	predict:** This is a generic function in R to run predictions from the results of various model     fitting functions. The model was the randomForest model in this case and using the trained data,   a new test data set was used to make predictions. [@cite_R
+
 
 
