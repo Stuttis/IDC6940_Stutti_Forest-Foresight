@@ -1,0 +1,43 @@
+---
+title: "Random Forest Algorithm"
+subtitle: "Methods"
+author: "Stutti (Advisor: Dr. Seals)"
+date: last-modified
+format:
+  revealjs
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  echo: false
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Methods Summary {.smaller}
+
+There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. I decided to run Random Forest Regression method because it performs well with large datasets, de-emphasizes irrelevant features and avoid overfitting as compared to traditional decision tree contruction.
+
+## Model Creation {.smaller}
+
+Two regression Random Forest models were created to predict Total Price of Sales activity using several features from the SSI Sales dataset.
+
+The TotalPrice variable was modeled using the randomForest() function in R. The Random Forest model was trained to predict Sales prices on orders based on the following predictors:
+
+  **•	OPCO:** The distributor ordering from SSI for the end Client.
+  
+  **•	Product:** The product being sold.
+  
+  **•	Substrate:** The material type of the product being sold.
+  
+  **•	RequestedDeliveryDate:** The date the sale was requested to be delivered.
+  
+  **•	qtyOrdered:** The quantity of items ordered in the sales transaction.
+  
+  **•	UnitPrice:** The price per unit of each product.
+  
+  **•	Class:** The end Client on the sales transaction.
