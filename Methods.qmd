@@ -51,7 +51,6 @@ For visualization purposes, below is an example of a tree from the Random Forest
 
 ```{r}
 #chooseCRANmirror()
-
 #install.packages("rpart", repos = "https://cloud.r-project.org/")
 #install.packages("rattle", repos = "https://cloud.r-project.org/")
 #install.packages("rpart")  # Recursive Partitioning and Regression Trees
@@ -83,7 +82,7 @@ testData  <- SaleData1[-trainIndex, ]
 
 
 # Fit a Random Forest model to predict TotalPrice (regression)
-rf_model1 <- randomForest(TotalPrice ~ OPCO + Product + Substrate +
+rf_model1 <- randomForest(TotalPrice ~ Substrate +
                             qtyOrdered + UnitPrice + Class, 
                             data = trainData, 
                             ntree = 50,  # Number of trees (default is 500)
@@ -96,21 +95,18 @@ rf_model1 <- randomForest(TotalPrice ~ OPCO + Product + Substrate +
 #getTree(rf_model1, k = 1, labelVar = TRUE)
 
 # Create a simple decision tree (just for visualization purposes)
-tree_model <- rpart(TotalPrice ~ OPCO + Product + Substrate + qtyOrdered +
+tree_model <- rpart(TotalPrice ~ Substrate + qtyOrdered +
                             UnitPrice + Class, 
                             data = trainData)
 
 # Plot the decision tree
 rpart.plot(tree_model, main = "Decision Tree Visualization")
 
-
 #library(partykit)
-
 # Train a decision tree model using partykit
 #party_tree <- ctree(TotalPrice ~ OPCO + Product + Substrate + RequestedDeliveryDate + 
 #                      qtyOrdered + UnitPrice + Class, 
 #                      data = trainData)
-
 # Plot the tree
 #plot(party_tree, main = "Single Decision Tree from Random Forest")
 ```
