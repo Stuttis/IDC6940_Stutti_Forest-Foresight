@@ -444,7 +444,7 @@
   <meta name="generator" content="quarto-1.5.57">
 
   <meta name="author" content="Stutti (Advisor: Dr. Seals)">
-  <meta name="dcterms.date" content="2024-10-21">
+  <meta name="dcterms.date" content="2024-10-22">
   <title>Random Forest Algorithm</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1155,23 +1155,59 @@ Stutti (Advisor: Dr. Seals)
 </div>
 </div>
 
-  <p class="date">2024-10-21</p>
+  <p class="date">2024-10-22</p>
 </section>
-<section id="methods-summary" class="slide level2 smaller">
-<h2>Methods Summary</h2>
-<p>There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. I decided to run Random Forest Regression method because it performs well with large datasets, de-emphasizes irrelevant features and avoid overfitting as compared to traditional decision tree contruction.</p>
+<section id="methods---random-forest-regression" class="slide level2 smaller">
+<h2>Methods - Random Forest (Regression)</h2>
+<p><strong>• Summary</strong></p>
+<pre><code>- Supervised Learning algorithm building multiple decision trees outputing the mean of individual trees.
+
+- Average of mean from multiple decision trees that make up a forest.
+
+- Reduces overfitting, de-emphasizes irrelevant features and works well with large data sets.</code></pre>
+<p><strong>• Method - Components</strong></p>
+<pre><code>- Bootstrap Sampling: Each tree is trained using random sampling with replacement from the training data (80% of original dataset). Remaining data (not in the sampled data) is called Out-of-Bag (OOB) data and used to test model accuracy.
+
+- Random Feature Selection: 3 randomly selected features are considered at each split in the trees. This reduces correlation between trees and improves generalization.
+
+- Bagging: This is the aggregation or final prediction (average) from all trees in the forest.</code></pre>
 </section>
-<section id="model-creation" class="slide level2 smaller">
-<h2>Model Creation</h2>
-<p>Two regression Random Forest models were created to predict Total Price of Sales activity using several features from the SSI Sales dataset.</p>
-<p>The TotalPrice variable was modeled using the randomForest() function in R. The Random Forest model was trained to predict Sales prices on orders based on the following predictors:</p>
-<p><strong>• OPCO:</strong> The distributor ordering from SSI for the end Client.</p>
-<p><strong>• Product:</strong> The product being sold.</p>
-<p><strong>• Substrate:</strong> The material type of the product being sold.</p>
-<p><strong>• RequestedDeliveryDate:</strong> The date the sale was requested to be delivered.</p>
-<p><strong>• qtyOrdered:</strong> The quantity of items ordered in the sales transaction.</p>
-<p><strong>• UnitPrice:</strong> The price per unit of each product.</p>
-<p><strong>• Class:</strong> The end Client on the sales transaction.</p>
+<section id="method---parameters" class="slide level2 smaller">
+<h2>Method - Parameters</h2>
+<p>The dependent variable, <em>TotalPrice</em>, was modeled using the randomForest() function in R. The model was trained to predict Sales prices on orders based on the following independent variables (predictors): <em>OPCO, Product, Substrate, Requested Delivery, Quantity Ordered, Unit Price and Class</em>.</p>
+<p><strong>• trainData:</strong> The model was trained on trainData (80% data split) that contains the taregt variable and all predictors.</p>
+<p><strong>• ntree:</strong> The number of trees to build is determined by <code>ntree</code>. Two models were tested, one with 100 trees and second with 300.</p>
+<p><strong>• mtry:</strong> 3 random features selected for consideration at each split.</p>
+<p><strong>• importance:</strong> This function computed each feature’s influence on the outcome.</p>
+<p><strong>• proximity:</strong> This function computed closeness of data points useful to identify relationships in the data.</p>
+</section>
+<section id="methods---mathematical-concepts" class="slide level2 smaller">
+<h2>Methods - Mathematical Concepts</h2>
+<p><strong>Below are the underlying equations involved in this Random Forest:</strong></p>
+<ol type="1">
+<li><p><strong>Mean Squared Error (MSE)</strong>: For a continuous target variable, <em>Total Price</em>, the criteria for splitting at each node is based on minimizing the <strong>(MSE)</strong>:</p>
+<p><span class="math display">\[ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y})^2 \]</span> where:</p></li>
+</ol>
+<p>• 𝑁= number of data points in the node</p>
+<p>• 𝑦𝑖= actual value of the target variable for the 𝑖-th data point</p>
+<p>• 𝑦^𝑖= predicted value (average of the target variable in the node)</p>
+<ol start="2" type="1">
+<li><p><strong>OOB Error</strong> is an internal estimate of the model’s performance. The OOB MSE is calculated as:</p>
+<p><span class="math display">\[ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 \]</span> where𝑦^𝑂𝑂B,𝑖is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.</p></li>
+</ol>
+</section>
+<section id="model-comparison" class="slide level2 smaller">
+<h2>Model comparison</h2>
+<p><strong>• Model 1 vs Model 2</strong></p>
+<pre><code>- 100 trees vs 300 trees 
+
+- The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
+
+- Considering the computational cost of training more trees:
+
+    - Choose *Model 2* if accuracy is critical. 
+    
+    - Choose *Model 1* if speed or resource efficiency is more important.</code></pre>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
 

@@ -18,26 +18,70 @@ editor:
     wrap: 72
 ---
 
-## Methods Summary {.smaller}
+## Methods - Random Forest (Regression) {.smaller}
 
-There are several methods within the Random Forest algorithm to achieve accuracy and reduce overfitting. I decided to run Random Forest Regression method because it performs well with large datasets, de-emphasizes irrelevant features and avoid overfitting as compared to traditional decision tree contruction.
+**•	Summary**
 
-## Model Creation {.smaller}
+    - Supervised Learning algorithm building multiple decision trees outputing the mean of individual trees.
+  
+    - Average of mean from multiple decision trees that make up a forest.
+  
+    - Reduces overfitting, de-emphasizes irrelevant features and works well with large data sets.
+    
+**•	Method - Components**
 
-Two regression Random Forest models were created to predict Total Price of Sales activity using several features from the SSI Sales dataset.
+    - Bootstrap Sampling: Each tree is trained using random sampling with replacement from the training data (80% of original dataset). Remaining data (not in the sampled data) is called Out-of-Bag (OOB) data and used to test model accuracy.
+    
+    - Random Feature Selection: 3 randomly selected features are considered at each split in the trees. This reduces correlation between trees and improves generalization.
+    
+    - Bagging: This is the aggregation or final prediction (average) from all trees in the forest.
+    
+## Method - Parameters {.smaller}
 
-The TotalPrice variable was modeled using the randomForest() function in R. The Random Forest model was trained to predict Sales prices on orders based on the following predictors:
+The dependent variable, *TotalPrice*, was modeled using the randomForest() function in R. The model was trained to predict Sales prices on orders based on the following independent variables (predictors): *OPCO, Product, Substrate, Requested Delivery, Quantity Ordered, Unit Price and Class*.
 
-  **•	OPCO:** The distributor ordering from SSI for the end Client.
+
+  **•	trainData:** The model was trained on trainData (80% data split) that contains the taregt variable and all predictors.
   
-  **•	Product:** The product being sold.
+  **•	ntree:** The number of trees to build is determined by `ntree`. Two models were tested, one with 100 trees and second with 300.
   
-  **•	Substrate:** The material type of the product being sold.
+  **•	mtry:** 3 random features selected for consideration at each split.
   
-  **•	RequestedDeliveryDate:** The date the sale was requested to be delivered.
+  **•	importance:** This function computed each feature's influence on the outcome.
   
-  **•	qtyOrdered:** The quantity of items ordered in the sales transaction.
+  **•	proximity:** This function computed closeness of data points useful to identify relationships in the data.
   
-  **•	UnitPrice:** The price per unit of each product.
+## Methods - Mathematical Concepts {.smaller}
+
+**Below are the underlying equations involved in this Random Forest:**
+
+  1. **Mean Squared Error (MSE)**: For a continuous target variable, *Total Price*, the criteria for splitting at each node is based on minimizing the **(MSE)**:
+
+      $$ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y})^2 $$
+where:
+
+•	𝑁= number of data points in the node
+
+•	𝑦𝑖= actual value of the target variable for the 𝑖-th data point
+
+•	𝑦^𝑖= predicted value (average of the target variable in the node)
+
+  2. **OOB Error** is an internal estimate of the model's performance. The OOB MSE is calculated as:
   
-  **•	Class:** The end Client on the sales transaction.
+      $$ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 $$
+where𝑦^𝑂𝑂B,𝑖is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.
+  
+  
+## Model comparison {.smaller}
+
+**•	Model 1 vs Model 2**
+
+    - 100 trees vs 300 trees 
+  
+    - The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
+    
+    - Considering the computational cost of training more trees:
+    
+        - Choose *Model 2* if accuracy is critical. 
+        
+        - Choose *Model 1* if speed or resource efficiency is more important.
