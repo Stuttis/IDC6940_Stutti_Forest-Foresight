@@ -41,7 +41,7 @@ editor:
 The dependent variable, *TotalPrice*, was modeled using the randomForest() function in R. The model was trained to predict Sales prices on orders based on the following independent variables (predictors): *OPCO, Product, Substrate, Requested Delivery, Quantity Ordered, Unit Price and Class*.
 
 
-  **•	trainData:** The model was trained on trainData (80% data split) that contains the taregt variable and all predictors.
+  **•	trainData:** The model was trained on trainData (80% data split) that contains the target variable and all predictors.
   
   **•	ntree:** The number of trees to build is determined by `ntree`. Two models were tested, one with 100 trees and second with 300.
   
@@ -51,11 +51,11 @@ The dependent variable, *TotalPrice*, was modeled using the randomForest() funct
   
   **•	proximity:** This function computed closeness of data points useful to identify relationships in the data.
   
-## Methods - Mathematical Concepts {.smaller}
+## Methods - Mathematical Concepts {.scrollable}
 
 **Below are the underlying equations involved in this Random Forest:**
 
-  1. **Mean Squared Error (MSE)**: For a continuous target variable, *Total Price*, the criteria for splitting at each node is based on minimizing the **(MSE)**:
+  1. `Mean Squared Error (MSE)`: For a continuous target variable, *Total Price*, the criteria for splitting at each node is based on minimizing the `(MSE)`:
 
       $$ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y})^2 $$
 where:
@@ -66,22 +66,24 @@ where:
 
 •	𝑦^𝑖= predicted value (average of the target variable in the node)
 
-  2. **OOB Error** is an internal estimate of the model's performance. The OOB MSE is calculated as:
+  2. `OOB Error` is an internal estimate of the model's performance. The OOB MSE is calculated as:
   
       $$ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 $$
-where𝑦^𝑂𝑂B,𝑖is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.
+where 𝑦^𝑂𝑂B,𝑖 is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.
   
   
-## Model comparison {.smaller}
+## Model Comparison {.smaller}
 
-**•	Model 1 vs Model 2**
+**Model 1 vs Model 2**
 
-    - 100 trees vs 300 trees 
+    •	100 trees vs 300 trees 
   
-    - The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
+    •	The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
     
-    - Considering the computational cost of training more trees:
+    •	Considering the computational cost of training more trees:
     
-        - Choose *Model 2* if accuracy is critical. 
+          1. Choose **Model 1** if speed or resource efficiency is more important.
         
-        - Choose *Model 1* if speed or resource efficiency is more important.
+          2. Choose **Model 2** if accuracy is critical. 
+        
+        

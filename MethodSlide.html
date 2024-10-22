@@ -1175,39 +1175,41 @@ Stutti (Advisor: Dr. Seals)
 <section id="method---parameters" class="slide level2 smaller">
 <h2>Method - Parameters</h2>
 <p>The dependent variable, <em>TotalPrice</em>, was modeled using the randomForest() function in R. The model was trained to predict Sales prices on orders based on the following independent variables (predictors): <em>OPCO, Product, Substrate, Requested Delivery, Quantity Ordered, Unit Price and Class</em>.</p>
-<p><strong>• trainData:</strong> The model was trained on trainData (80% data split) that contains the taregt variable and all predictors.</p>
+<p><strong>• trainData:</strong> The model was trained on trainData (80% data split) that contains the target variable and all predictors.</p>
 <p><strong>• ntree:</strong> The number of trees to build is determined by <code>ntree</code>. Two models were tested, one with 100 trees and second with 300.</p>
 <p><strong>• mtry:</strong> 3 random features selected for consideration at each split.</p>
 <p><strong>• importance:</strong> This function computed each feature’s influence on the outcome.</p>
 <p><strong>• proximity:</strong> This function computed closeness of data points useful to identify relationships in the data.</p>
 </section>
-<section id="methods---mathematical-concepts" class="slide level2 smaller">
+<section id="methods---mathematical-concepts" class="slide level2 scrollable">
 <h2>Methods - Mathematical Concepts</h2>
 <p><strong>Below are the underlying equations involved in this Random Forest:</strong></p>
 <ol type="1">
-<li><p><strong>Mean Squared Error (MSE)</strong>: For a continuous target variable, <em>Total Price</em>, the criteria for splitting at each node is based on minimizing the <strong>(MSE)</strong>:</p>
+<li><p><code>Mean Squared Error (MSE)</code>: For a continuous target variable, <em>Total Price</em>, the criteria for splitting at each node is based on minimizing the <code>(MSE)</code>:</p>
 <p><span class="math display">\[ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y})^2 \]</span> where:</p></li>
 </ol>
 <p>• 𝑁= number of data points in the node</p>
 <p>• 𝑦𝑖= actual value of the target variable for the 𝑖-th data point</p>
 <p>• 𝑦^𝑖= predicted value (average of the target variable in the node)</p>
 <ol start="2" type="1">
-<li><p><strong>OOB Error</strong> is an internal estimate of the model’s performance. The OOB MSE is calculated as:</p>
-<p><span class="math display">\[ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 \]</span> where𝑦^𝑂𝑂B,𝑖is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.</p></li>
+<li><p><code>OOB Error</code> is an internal estimate of the model’s performance. The OOB MSE is calculated as:</p>
+<p><span class="math display">\[ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 \]</span> where 𝑦^𝑂𝑂B,𝑖 is the average of the predictions for the𝑖-th data point across all trees where that point was not included in the bootstrap sample.</p></li>
 </ol>
 </section>
 <section id="model-comparison" class="slide level2 smaller">
-<h2>Model comparison</h2>
-<p><strong>• Model 1 vs Model 2</strong></p>
-<pre><code>- 100 trees vs 300 trees 
+<h2>Model Comparison</h2>
+<p><strong>Model 1 vs Model 2</strong></p>
+<pre><code>•   100 trees vs 300 trees 
 
-- The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
+•   The choice of 300 trees provided slightly better results. However, the difference in performance is minor.
 
-- Considering the computational cost of training more trees:
+•   Considering the computational cost of training more trees:
 
-    - Choose *Model 2* if accuracy is critical. 
+      1. Choose **Model 1** if speed or resource efficiency is more important.
     
-    - Choose *Model 1* if speed or resource efficiency is more important.</code></pre>
+      2. Choose **Model 2** if accuracy is critical. 
+    
+    </code></pre>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
 
