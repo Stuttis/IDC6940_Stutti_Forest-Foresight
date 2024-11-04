@@ -1,0 +1,611 @@
+---
+title: "Power of Random Forest in Business"
+subtitle: "Tables"
+author: "Stutti (Advisor: Dr. Seals)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Data Dictionary {.smaller}
+<style type="text/css">
+.tg  {border-collapse:collapse;border-color:#9ABAD9;border-spacing:0;}
+.tg td{background-color:#EBF5FF;border-color:#9ABAD9;border-style:solid;border-width:0px;color:#444;
+  font-family:Arial, sans-serif;font-size:12px;overflow:hidden;padding:3px 5px;word-break:normal;}
+.tg th{background-color:#409cff;border-color:#9ABAD9;border-style:solid;border-width:0px;color:#fff;
+  font-family:Arial, sans-serif;font-size:12px;font-weight:normal;overflow:hidden;padding:1px 5px;word-break:normal;}
+.tg .tg-fcvt{background-color:#FFF;border-color:#000000;text-align:left;vertical-align:middle;padding:1px 3px;}
+.tg .tg-movw{background-color:#0F9ED5;border-color:#000000;text-align:left;vertical-align:top;padding:1px 3px;}
+.tg .tg-0a7q{border-color:#000000;text-align:left;vertical-align:middle;padding:1px 3px;}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-movw"><span style="background-color:#0F9ED5"></span><br><span style="color:white">Attribute</span><span style="background-color:#0F9ED5"></span></th>
+    <th class="tg-movw"><span style="background-color:#0F9ED5"></span><br><span style="color:white">Format</span><span style="background-color:#0F9ED5"></span></th>
+    <th class="tg-movw"><span style="background-color:#0F9ED5"></span><br><span style="color:white">Description</span><span style="background-color:#0F9ED5"></span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">OPCO</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">The customer placing the order. In this case, typically a Distributor.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">SalesOrderID</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Unique identifier assigned to each sales order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">CustomerPO</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Customer’s unique identifier of their order sent to SSI</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">Product</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Unique identifier assigned to each product.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">Description</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Description of the product being sold.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">Substrate</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Type of product/material.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">RequestedDeliveryDate</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Date the delivery was scheduled originally.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">DateFulfilled</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Date the delivery was made.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">qtyOrdered</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Numeric</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Quantity ordered on the order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">qtyFulfilled</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Numeric</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Quantity delivered on the order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">UnitPrice</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Numeric</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Price of each case of product SSI charges the customer.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">TotalPrice</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Numeric</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Total price of the sales order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">Class</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Customer name</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">ShipToName</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Address name of ordering party</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">ShipToAddress</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Address where order needs to be delivered</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">SalesOrderStatus</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Status of Sales order</span></td>
+  </tr>
+  <tr>
+    <td class="tg-fcvt"><span style="background-color:white"></span><br><span style="color:#212529">SalesItemStatus</span><span style="background-color:white"></span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Varchar</span></td>
+    <td class="tg-0a7q"><br><span style="color:#212529">Status of each line item on the sales order</span></td>
+  </tr>
+</tbody></table>
+
+## Table 1 - SSI Sales Data {.smaller}
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;border-style: solid;border-width: 1px;border-color: black;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:13px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-bobw{font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-8d8j{text-align:center;vertical-align:bottom}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-7zrl"></th>
+    <th class="tg-j6zm">Total Orders</th>
+    <th class="tg-j6zm">Closed Short</th>
+    <th class="tg-j6zm">Fulfilled</th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl"></td>
+    <td class="tg-j6zm">(n=7585)</td>
+    <td class="tg-j6zm">(n=733)</td>
+    <td class="tg-j6zm">(n=6852)</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Top Customers</td>
+    <td class="tg-7zrl"> </td>
+    <td class="tg-7zrl"> </td>
+    <td class="tg-7zrl"> </td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Smoothie Island</td>
+    <td class="tg-8d8j">1701 (22.43%)</td>
+    <td class="tg-8d8j">455 (62.07%)</td>
+    <td class="tg-8d8j">1246 (18.18%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Philly Bite</td>
+    <td class="tg-8d8j">1556 (20.51%)</td>
+    <td class="tg-8d8j">267 (36.43%)</td>
+    <td class="tg-8d8j">1289 (18.81%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">PlatePioneers</td>
+    <td class="tg-8d8j">1396 (18.40%)</td>
+    <td class="tg-8d8j">143 (19.51%)</td>
+    <td class="tg-8d8j">1253 (18.29%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Berl Company</td>
+    <td class="tg-8d8j">906 (11.94%)</td>
+    <td class="tg-8d8j">5 (0.68%)</td>
+    <td class="tg-8d8j">901 (13.15%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">DineLink Intl</td>
+    <td class="tg-8d8j">589 (7.77%)</td>
+    <td class="tg-8d8j">42 (5.73%)</td>
+    <td class="tg-8d8j">547 (7.98%)</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Top Products</td>
+    <td class="tg-8d8j"></td>
+    <td class="tg-8d8j"></td>
+    <td class="tg-8d8j"></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">DC-01</td>
+    <td class="tg-8d8j">1135 (14.96%)</td>
+    <td class="tg-8d8j">345 (47.07%)</td>
+    <td class="tg-8d8j">790 (11.53%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">TSC-PQB-01</td>
+    <td class="tg-8d8j">1087 (14.33%)</td>
+    <td class="tg-8d8j">389 (53.07%)</td>
+    <td class="tg-8d8j">698 (10.19%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">TSC-PW14X16-01</td>
+    <td class="tg-8d8j">848 (11.18%)</td>
+    <td class="tg-8d8j">283 (38.61%)</td>
+    <td class="tg-8d8j">565 (8.25%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">CMI-PCK-01</td>
+    <td class="tg-8d8j">802 (10.57%)</td>
+    <td class="tg-8d8j">288 (39.29%)</td>
+    <td class="tg-8d8j">514 (7.50%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">PC-05-B1</td>
+    <td class="tg-8d8j">745 (9.82%)</td>
+    <td class="tg-8d8j">220 (30.01%)</td>
+    <td class="tg-8d8j">525 (7.66%)</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Top Distributors</td>
+    <td class="tg-8d8j"></td>
+    <td class="tg-8d8j"></td>
+    <td class="tg-8d8j"></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Ed Don &amp; Company - Miramar</td>
+    <td class="tg-8d8j">210 (2.77%)</td>
+    <td class="tg-8d8j">0 (0.00%)</td>
+    <td class="tg-8d8j">210 (3.06%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">PFG- Gainesville</td>
+    <td class="tg-8d8j">197 (2.60%)</td>
+    <td class="tg-8d8j">0 (0.00%)</td>
+    <td class="tg-8d8j">197 (2.88%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Ed Don &amp; Company -Woodridge</td>
+    <td class="tg-8d8j">186 (2.45%)</td>
+    <td class="tg-8d8j">0 (0.00%)</td>
+    <td class="tg-8d8j">186 (2.71%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Ed Don &amp; Company - MiraLoma</td>
+    <td class="tg-8d8j">180 (2.37%)</td>
+    <td class="tg-8d8j">0 (0.00%)</td>
+    <td class="tg-8d8j">180 (2.63%)</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">.Ed Don - Miramar</td>
+    <td class="tg-8d8j">162 (2.14%)</td>
+    <td class="tg-8d8j">0 (0.00%)</td>
+    <td class="tg-8d8j">162 (2.36%)</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Top Substrates</td>
+    <td class="tg-bobw">Paper</td>
+    <td class="tg-bobw">Plastic</td>
+    <td class="tg-bobw">Bagasse</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Revenue($103,826,286)</td>
+    <td class="tg-8d8j">$54,838,585 (52.82%)</td>
+    <td class="tg-8d8j">$40,336,669 (38.85%)</td>
+    <td class="tg-8d8j">$4,350,337 (4.19%)</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Quantity Ordered</td>
+    <td class="tg-bobw">Min</td>
+    <td class="tg-bobw">Mean</td>
+    <td class="tg-bobw">Max</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Total Ordered(1,971,237)</td>
+    <td class="tg-8d8j">1</td>
+    <td class="tg-8d8j">61.47</td>
+    <td class="tg-8d8j">23,160</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Unit Price</td>
+    <td class="tg-bobw">Min</td>
+    <td class="tg-bobw">Mean</td>
+    <td class="tg-bobw">Max</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Key Stats</td>
+    <td class="tg-8d8j">$0.16 </td>
+    <td class="tg-8d8j">$62.60 </td>
+    <td class="tg-8d8j">$864.00</td>
+  </tr>
+  <tr>
+    <td class="tg-j6zm">Total Price</td>
+    <td class="tg-bobw">Min</td>
+    <td class="tg-bobw">Mean</td>
+    <td class="tg-bobw">Max</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl">Key Stats</td>
+    <td class="tg-8d8j">$4.92 </td>
+    <td class="tg-8d8j">$3,430.74 </td>
+    <td class="tg-8d8j">$143,084.74</td>
+  </tr>
+</tbody></table>
+
+## Table 2
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-6bug{background-color:#dae8fc;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-xpud{background-color:#ffffc7;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-nrix{text-align:center;vertical-align:middle}
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 743px"><colgroup>
+<col style="width: 63px">
+<col style="width: 134px">
+<col style="width: 201px">
+<col style="width: 179px">
+<col style="width: 166px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-j6zm"><span style="font-weight:bold">Table 2:</span></th>
+    <th class="tg-j6zm" colspan="4"><span style="font-weight:bold">Identified Factors having causal impact on consumer buying behavior (based on prior knowledge of data)</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl" rowspan="7"></td>
+    <td class="tg-7zrl"></td>
+    <td class="tg-xpud">Demographics</td>
+    <td class="tg-xpud">Behavioral</td>
+    <td class="tg-xpud">Seasonal</td>
+  </tr>
+  <tr>
+    <td class="tg-6bug" rowspan="6">Factors<br><br></td>
+    <td class="tg-nrix" rowspan="6">Geography<br><br><br></td>
+    <td class="tg-nrix" rowspan="3">Product</td>
+    <td class="tg-nrix" rowspan="2">Quantity</td>
+  </tr>
+  <tr>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="2">Total Price</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="3">Substrate</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="2">Date</td>
+  </tr>
+  <tr>
+  </tr>
+</tbody>
+</table>
+
+## Table 3
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-qfkm{border-color:#ffc702;text-align:left;vertical-align:bottom}
+.tg .tg-8sni{border-color:#333333;text-align:center;vertical-align:bottom}
+.tg .tg-bw5j{background-color:#ffffc7;border-color:#ffc702;text-align:center;vertical-align:middle}
+.tg .tg-60cv{border-color:#333333;font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-558x{border-color:#ffc702;font-size:14px;font-weight:bold;text-align:center;vertical-align:top}
+.tg .tg-4gw0{border-color:#333333;text-align:left;vertical-align:bottom}
+.tg .tg-u572{background-color:#dae8fc;border-color:#ffc702;text-align:center;vertical-align:top}
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 662px"><colgroup>
+<col style="width: 159px">
+<col style="width: 187px">
+<col style="width: 159px">
+<col style="width: 157px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-60cv"><span style="font-weight:bold">Table3:</span></th>
+    <th class="tg-558x" colspan="3">Feature Importance impacting TotalPrice </th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-4gw0"></td>
+    <td class="tg-u572">Percent Increace in Mean Squared Error</td>
+    <td class="tg-qfkm"></td>
+    <td class="tg-bw5j">Increase in Node Purity</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">qtyOrdered</td>
+    <td class="tg-8sni">115.57</td>
+    <td class="tg-4gw0">qtyOrdered</td>
+    <td class="tg-8sni">816,625,361,100</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">UnitPrice</td>
+    <td class="tg-8sni">67.47</td>
+    <td class="tg-4gw0">UnitPrice</td>
+    <td class="tg-8sni">108,382,696,050</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">Product</td>
+    <td class="tg-8sni">18.24</td>
+    <td class="tg-4gw0">Product</td>
+    <td class="tg-8sni">48,552,700,247</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">Substrate</td>
+    <td class="tg-8sni">13.31</td>
+    <td class="tg-4gw0">Class</td>
+    <td class="tg-8sni">43,912,472,740</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">RequestedDeliveryDate</td>
+    <td class="tg-8sni">11.35</td>
+    <td class="tg-4gw0">OPCO</td>
+    <td class="tg-8sni">31,973,554,486</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">OPCO</td>
+    <td class="tg-8sni">10.72</td>
+    <td class="tg-4gw0">RequestedDeliveryDate</td>
+    <td class="tg-8sni">11,687,570,783</td>
+  </tr>
+  <tr>
+    <td class="tg-4gw0">Class</td>
+    <td class="tg-8sni">10.42</td>
+    <td class="tg-4gw0">Substrate</td>
+    <td class="tg-8sni">7,523,464,034</td>
+  </tr>
+</tbody></table>
+
+## Table 4
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:5px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:5px 5px;word-break:normal;}
+.tg .tg-2b7s{text-align:right;vertical-align:bottom}
+.tg .tg-ccro{background-color:#ffffc7;text-align:center;vertical-align:bottom}
+.tg .tg-bobw{font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-qcp4{background-color:#ffccc9;text-align:left;vertical-align:bottom}
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 293px"><colgroup>
+<col style="width: 104px">
+<col style="width: 77px">
+<col style="width: 112px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-j6zm"><span style="font-weight:bold">Table4:</span></th>
+    <th class="tg-bobw" colspan="2"><span style="font-weight:bold">Confusion Matrix and Statistics</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"></td>
+    <td class="tg-ccro" colspan="2">Reference</td>
+  </tr>
+  <tr>
+    <td class="tg-qcp4"><span style="font-weight:normal">Prediction </span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4045</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">135</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1101</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1001</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Accuracy</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8032</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">95% CI</td>
+    <td class="tg-2b7s">(0.7932, 0.813)</td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">No Information Rate</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8192</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">P-Value [Acc &gt; NIR]</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.9994</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Kappa</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.5012</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Mcnemar's Test P-Value</td>
+    <td class="tg-2b7s">&lt;2e-16</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Sensitivity</td>
+    <td class="tg-2b7s">0.786</td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Specificity</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8812</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Pos Pred Value</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.9677</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Neg Pred Value</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.4762</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Prevalence</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8192</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Detection Rate</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.6439</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Detection Prevalence</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.6654</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Balanced Accuracy</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8336</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2"><span style="font-weight:normal">'Positive' Class</span></td>
+    <td class="tg-2b7s">0</td>
+  </tr>
+</tbody></table>
+
+## Table 5
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-jz24{background-color:#CFE2F3;color:#00F;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-nozj{background-color:#CFE2F3;color:#980000;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-8d8j{text-align:center;vertical-align:bottom}
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 407px"><colgroup>
+<col style="width: 341px">
+<col style="width: 66px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-nozj"><span style="font-weight:bold;color:#980000;background-color:#CFE2F3">Model</span></th>
+    <th class="tg-jz24"><span style="font-weight:bold;color:#00F;background-color:#CFE2F3">RMSE</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Base Random Forest Model</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">115.01</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with Aggregating Features</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">100.73</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=2)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">108.78</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=3)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">100.44</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=4)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">94.38</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">XGBoost</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">62.88</span></td>
+  </tr>
+</tbody></table>

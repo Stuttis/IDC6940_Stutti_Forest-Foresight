@@ -1,0 +1,65 @@
+---
+title: "Power of Random Forests in Business"
+subtitle: "Analysis & Results"
+author: "Stutti (Advisor: Dr. Seals)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## SSI Sales Dataset {.smaller}
+
+The source data contained sales transactions for a span of 48 months and came from SSI, a Florida based B2B2C type company. The company offers custom packaging in the food industry. It offers custom branding and design as well as actual supply of the products. Customers may have transactional based sales where each order serves as it’s own agreement or customers may have a long term contract where they agree to purchase a product or several products through the course of a six month period or a year, or agree to purchase a set quantity over a period of time, for example. Once these agreements are established, the customer instructs it’s distributor to purchase from SSI and deliver to them. So, the purchase order, in reality comes from this distributor and not the end client.
+
+The data available in a .csv file was read into RStudio.  Below you will find the data dictionary, a Table 1 with some statistics summaries of the data and some visualizations. The base file had 33,818 observations and 17 variables in the data.
+
+## Preprocess the Data
+The dataset had sales returns and credits to the customer that were excluded in order to avoid false outcomes and predictions. There were also line items related to shipping costs that were excluded. As an example, there may have been out of the norm activity when SSI encountered inbound shipment delays and SSI needed to airfreight product to customers at a higher than normal shipping rate. We do not want skewed results and hence, this activity was omitted. 
+
+### Analysis and Results
+
+Initially, the Random Forest model was run to predict `TotalPrice` (regression). TotalPrice being the target variable and OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class being the predictor variables. Two iterations were run; one with 100 trees and one with 300 trees. Model 2 relied more heavily on qtyOrdered and UnitPrice for accurate predictions, and it better incorporated factors like Product, Substrate, and RequestedDeliveryDate to refine predictions as compared to Model 1. Looking at the prediction plots for both model 1 and 2, it appeared the points were very close to or overlapping along the diagonal line which indicated that the model is making accurate predictions. There didn't appear to be a significant difference between the two models.
+
+Next, a Random Forest Classification model were created to predict **Customer Churn** using some of the features from the SSI Sales dataset. Predicting churn is crucial because it allows organizations to proactively engage customers who may leave, improving retention and reducing revenue loss. A churn indicator was not available in the historical SSI Sales data, therefore, it was defined and appended to the dataset. If the last order date for a Client was older than 2 months, a churn indicator of 1 was selected and if order date was within the prior 2 months, a churn indicator of 0 was selected [churn (1) and no-churn (0)]. Churn was based on purchase frequency; assuming clients typically order monthly, clients were flagged in case an order had not been placed in more than two months. In that case, the client was considered churned.
+
+The `churn` variable was modeled using the randomForest() function in R. The Random Forest model was trained to predict churn based on the following predictors:
+
+  **•	Class:** The Client affected on the sale.
+  
+  **•	Product:** The Product being sold.
+  
+  **•	qtyOrdered:** Quantity ordered on the sale.
+  
+  **•	DateFulfilled:** Date the sale was completed.
+
+The model was created using tree size of 300 (ntree = 300). The model was trained to predict churn based on the following independent variables (predictors): *Product, Quantity Ordered, DateFulfilled and Class*. Feature importance and proximity measure were set within the model for further analysis. The createDataPartition() function in R was used to split the data into training and test sets based on target variable `churned` and it's distribution was maintained between the two sets. 80% of the data was used to train data and 20% was used to test. The training set was used to train the random forest model and helped it learn the relationships between the predictors and the target variable. The testing set was used to evaluate the model's performance. The number of variables were randomly sampled at each split (mtry = 3) using the default value of 3.
+
+#### Customer Churn Evaluation
+
+The Model was evaluated using the statistics provided in the confusion matrix. The accuracy on the final model proved to be 80.3% but it was achieved only after several tweaks to the model. Originally only a 51% accuracy was seen which meant the model correctly classified about 51% of the cases. However, 80.3% accuracy was eventually achieved to predict churn. The No Information Rate (NIR) was 0.8192, which meant that always predicting majority class (0) would result in 81.92% accuracy. Kappa of 0.5012 indicates moderate agreement between predicted and actual classifications beyond chance, hence did fairly in differenciating classes. Sensitivity (for class 0) of 0.7860 indicated the model correctly identifies 78.6% of the actual 0 cases. This was fairly strong but could still benefit from improvement.
+Specificity (for class 1) of 0.8812 suggests the model correctly identifies 88.12% of the actual 1 cases, indicating strong performance in identifying class 1 cases. Positive Predictive Value (PPV for class 0) of 0.9677 suggests that when the model predicts 0, it is correct 96.77% of the time. This indicates a high precision for class 0. Negative Predictive Value (NPV for class 1) of 0.4762, suggests that when the model predicts 1, it’s correct only 47.62% of the time. This lower NPV suggests that the model might still be missing some 1 cases. The P-value (<2e-16) for Mcnemar’s Test indicates a statistically significant difference between the error rates for 0 and 1 predictions. This could mean that the model still struggles slightly with misclassification between classes. Over all, the model has a good balance (0.8336) between identifying both classes, though it is better at predicting class 0. 
+
+
+Next, a Random Forest Regression model was created to forecast inventory using some of the features from the SSI Sales dataset. The goal of **Inventory Forecast** was to predict quantity that will be ordered for each product in future periods. `qtyOrdered` was the target variable with predictor variables being: *Product, OPCO, Substrate, Month, Year, DayOfWeek, UnitPrice and Class*. The data was partitioned the same way: 80% of the data was used to train the model and 20% was used to test. Again, feature importance and proximity measure were set within the model for further analysis and the model was evaluated using the root mean square error rate.
+
+#### Inventory Forecast Evaluation
+
+On the initial model, a RMSE (Root Mean Square Error) of 115.01 was calculated. The meant that on average, the predicted quantity deviated from the actual quantity by about 115. With the target variable `qtyOrdered` ranging from 1 to 1262, it was a clear indication of some degree of prediction error. The RMSE suggested room for improvement in the model. Many model modifications were made to improve RMSE, however an improvement in prediction was not achieved. Three further strategies were tested to improve the model. 
+
+ - *Aggregating features*: A grouping by `Product` and `Class` was created to capture patterns specific to each product for each client. This grouping provided more granular values and improved the model's performance. RMSE calculated dropped to 100.73.
+ 
+ - *K-Fold Cross-Validation*: Further tuning was performed using 5-Fold Cross-Validation to get more robust RMSE estimate. The final value used for the model was mtry = 4 and RMSE calculated was 94.38.
+ 
+ - *XGBoost*: XGBoost package in R proved to capture complex patterns of this data better than the base Random Forest function. XGBoost required data to be in a numeric matrix format and it didn't handle categorical variables directly. A RMSE of 62.88 was achieved using this gradient boosting method. 62.88 indicates that there is some variability but still reasonable predictive accuracy for larger quantities. However, it still appears to be high since the data has a lot of lower values.
+
