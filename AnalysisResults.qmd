@@ -28,9 +28,9 @@ Below you will find the data dictionary of the SSI Sales data.
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-style:solid;border-width:0px;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;
-  padding:10px 5px;word-break:normal;}
+  padding:6px 5px;word-break:normal;}
 .tg th{border-style:solid;border-width:0px;font-family:Arial, sans-serif;font-size:14px;font-weight:normal;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
+  overflow:hidden;padding:6px 5px;word-break:normal;}
 .tg .tg-m2gh{background-color:#FFF;border-color:#340096;color:#212529;font-weight:bold;text-align:left;vertical-align:bottom}
 .tg .tg-5ynp{background-color:#CFE2F3;border-color:#340096;font-weight:bold;text-align:center;vertical-align:top}
 .tg .tg-mlwe{background-color:#212529;border-color:#340096;text-align:left;vertical-align:bottom}
@@ -153,9 +153,9 @@ kable(head(SaleData))
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
+  overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+  font-weight:normal;overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg .tg-2b7s{text-align:right;vertical-align:bottom}
 .tg .tg-qag3{background-color:#A4C2F4;font-weight:bold;text-align:left;vertical-align:bottom}
 .tg .tg-z5rg{color:#B0B0B0;font-style:italic;text-align:left;vertical-align:bottom}
@@ -642,9 +642,9 @@ Below you will find **Table 1** with some statistics summaries of the data.
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
+  overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+  font-weight:normal;overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg .tg-6bug{background-color:#dae8fc;font-weight:bold;text-align:center;vertical-align:middle}
 .tg .tg-xpud{background-color:#ffffc7;font-weight:bold;text-align:center;vertical-align:bottom}
 .tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
@@ -732,9 +732,9 @@ rf_model2 <- randomForest(TotalPrice ~ OPCO + Product + Substrate + RequestedDel
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
+  overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+  font-weight:normal;overflow:hidden;padding:6px 3px;word-break:normal;}
 .tg .tg-qfkm{border-color:#ffc702;text-align:left;vertical-align:bottom}
 .tg .tg-8sni{border-color:#333333;text-align:center;vertical-align:bottom}
 .tg .tg-bw5j{background-color:#ffffc7;border-color:#ffc702;text-align:center;vertical-align:middle}
@@ -905,10 +905,6 @@ The model was created using tree size of 300 (ntree = 300). The model was traine
 # Make predictions on the test set
 predictions <- predict(rf_model, newdata = testData)
 
-# Create a confusion matrix
-confusion_matrix <- confusionMatrix(predictions, testData$churned)
-#print(confusion_matrix)
-
 # Plot variable importance
 # varImpPlot(rf_model, main = "Feature Importance for Churn Prediction")
 
@@ -933,6 +929,10 @@ ggplot(importance_data, aes(x = reorder(Feature, MeanDecreaseAccuracy), y = Mean
     panel.grid.minor = element_blank(),
     plot.margin = unit(c(1, 1, 1, 1), "cm"))
 
+# Create a confusion matrix
+confusion_matrix <- confusionMatrix(predictions, testData$churned)
+#print(confusion_matrix)
+
 ```
 #### Table 4 - Confusion Matrix (Customer Churn Model)
 
@@ -941,9 +941,10 @@ The confusion matrix provides metrics such as accuracy, sensitivity, and specifi
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
+  overflow:hidden;padding:4px 3px;word-break:normal;}
 .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+  font-weight:normal;overflow:hidden;padding:4px 3px;word-break:normal;}
+.tg tr {height: 5px;}
 .tg .tg-2b7s{text-align:right;vertical-align:bottom}
 .tg .tg-dne1{background-color:#c0c0c0;text-align:left;vertical-align:bottom}
 .tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
@@ -1055,6 +1056,7 @@ The confusion matrix provides metrics such as accuracy, sensitivity, and specifi
     <td class="tg-2b7s">0</td>
   </tr>
 </tbody></table>
+
 
 ##### Customer Churn Model Evaluation
 
