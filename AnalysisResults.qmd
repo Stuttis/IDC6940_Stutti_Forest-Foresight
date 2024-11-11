@@ -443,7 +443,7 @@ sales_over_time$Quarter <- quarter(sales_over_time$nDate)
 ggplot(sales_over_time, aes(x = nDate, y = TotalSales)) +
   geom_line(color = "blue") +
   geom_point() +
-  scale_x_date(date_labels = "Q%q %Y", date_breaks = "3 months") +
+  scale_x_date(date_labels = "Q% %Y", date_breaks = "3 months") +
   labs(title = "Total Sales Over Time (Quarterly)", x = "Quarter", y = "Total Sales") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -637,7 +637,7 @@ Below you will find **Table 1** with some statistics summaries of the data.
   </tr>
 </tbody></table>
 
-#### Table 2 identifies factors impacting consumer behavior
+#### Table 2 - Factors Impacting Consumer Behavior
 
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
@@ -843,7 +843,7 @@ Subsequently, two main models were run: one to predict <u>`Customer Churn`</u> a
 
 **Customer Churn**: A Random Forest Classification model was created to predict *Customer Churn* using some of the features from the SSI Sales dataset. Predicting churn is crucial because it allows organizations to proactively engage customers who may leave, improving retention and reducing revenue loss. A churn indicator was not available in the historical SSI Sales data, therefore, it was defined and appended to the dataset. If the last order date for a Client was older than 2 months, a churn indicator of 1 was selected and if order date was within the prior 2 months, a churn indicator of 0 was selected [churn (1) and no-churn (0)]. Churn was based on purchase frequency; assuming clients typically order monthly, clients were flagged in case an order had not been placed in more than two months. In that case, the client was considered churned.
 
-```{r, eval = FALSE}
+```{r, echo=FALSE}
 # Since we don't have a variable for churn, Define churn based on purchase frequency
 ## Convert DateFulfilled from character string to Date type format
 SaleData1$DateFulfilled <- as.Date(SaleData1$DateFulfilled, format = "%m/%d/%Y")
@@ -875,7 +875,9 @@ The `churn` variable was modeled using the randomForest() function in R. The mod
   
   **•	DateFulfilled:** Date the sale was completed.
 
-```{r, eval = FALSE}
+```{r, echo=FALSE}
+library(caret)
+library(randomForest)
 # Define target variable
 SaleData1$churned <- as.factor(SaleData1$churned) # Ensure churn is a factor
 
@@ -896,19 +898,40 @@ rf_model <- randomForest(churned ~ Product + DateFulfilled +
 ```
 The model was created using tree size of 300 (ntree = 300). The model was trained to predict churn based on the following independent variables (predictors): *Product, Quantity Ordered, DateFulfilled and Class*. Feature importance and proximity measure were set within the model for further analysis. The createDataPartition() function in R was used to split the data into training and test sets based on target variable `churned` and it's distribution was maintained between the two sets. 80% of the data was used to train data and 20% was used to test. The training set was used to train the random forest model and helped it learn the relationships between the predictors and the target variable. The testing set was used to evaluate the model's performance. The number of variables were randomly sampled at each split (mtry = 3) using the default value of 3.
 
-```{r, eval = FALSE}
+```{r, echo=FALSE}
 # Review the model output
-print(rf_model)
+# print(rf_model)
 
 # Make predictions on the test set
 predictions <- predict(rf_model, newdata = testData)
 
 # Create a confusion matrix
 confusion_matrix <- confusionMatrix(predictions, testData$churned)
-print(confusion_matrix)
+#print(confusion_matrix)
 
 # Plot variable importance
-varImpPlot(rf_model, main = "Feature Importance for Churn Prediction")
+# varImpPlot(rf_model, main = "Feature Importance for Churn Prediction")
+
+# Extract variable importance
+importance_data <- as.data.frame(importance(rf_model))
+importance_data$Feature <- rownames(importance_data)
+
+ggplot(importance_data, aes(x = reorder(Feature, MeanDecreaseAccuracy), y = MeanDecreaseAccuracy)) +
+  geom_segment(aes(xend = Feature, yend = 0), color = "cornflowerblue", size = 1) +
+  geom_point(color = "darkblue", size = 4) +
+  coord_flip() +
+  labs(title = "Lollipop Chart Showing Feature Importance for Churn Prediction",
+       x = "Feature",
+       y = "Mean Decrease in Accuracy") +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.title.position = "plot", # Positions title at top with extra space
+    panel.background = element_rect(fill = "aliceblue", color = NA),
+    plot.background = element_rect(fill = "lavender", color = NA),
+    panel.grid.major = element_line(color = "lightgray", size = 0.3),
+    panel.grid.minor = element_blank(),
+    plot.margin = unit(c(1, 1, 1, 1), "cm"))
 
 ```
 #### Table 4 - Confusion Matrix (Customer Churn Model)
@@ -918,32 +941,31 @@ The confusion matrix provides metrics such as accuracy, sensitivity, and specifi
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
 .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:2px 5px;word-break:normal;}
+  overflow:hidden;padding:10px 5px;word-break:normal;}
 .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:2px 5px;word-break:normal;}
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
 .tg .tg-2b7s{text-align:right;vertical-align:bottom}
-.tg .tg-ccro{background-color:#ffffc7;text-align:center;vertical-align:bottom}
 .tg .tg-dne1{background-color:#c0c0c0;text-align:left;vertical-align:bottom}
-.tg .tg-04ql{background-color:#9b9b9b;text-align:left;vertical-align:bottom}
 .tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-1v3t{background-color:#ffffc7;font-weight:bold;text-align:left;vertical-align:bottom}
 .tg .tg-7zrl{text-align:left;vertical-align:bottom}
-.tg .tg-qcp4{background-color:#ffccc9;text-align:left;vertical-align:bottom}
+.tg .tg-8d8j{text-align:center;vertical-align:bottom}
 </style>
 <table class="tg"><thead>
   <tr>
     <th class="tg-j6zm"><span style="font-weight:bold">Table4:</span></th>
-    <th class="tg-j6zm" colspan="2"><span style="font-weight:bold">Confusion Matrix and Statistics</span></th>
+    <th class="tg-1v3t" colspan="2"><span style="font-weight:bold">Confusion Matrix and Statistics</span></th>
   </tr></thead>
 <tbody>
   <tr>
-    <td class="tg-04ql" colspan="3"></td>
+    <td class="tg-dne1" colspan="3"></td>
   </tr>
   <tr>
     <td class="tg-7zrl"></td>
-    <td class="tg-ccro" colspan="2">Reference</td>
+    <td class="tg-8d8j" colspan="2">Reference</td>
   </tr>
   <tr>
-    <td class="tg-qcp4"><span style="font-weight:normal">Prediction </span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Prediction </span></td>
     <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
     <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
   </tr>
@@ -1041,7 +1063,7 @@ Specificity (for class 1) of 0.8812 suggests the model correctly identifies 88.1
 
 **Inventory Forecast**: A Random Forest Regression model was created to forecast inventory using some of the features from the SSI Sales dataset. The goal of *Inventory Forecast* was to predict quantity that will be ordered for each product in future periods. `qtyOrdered` was the target variable with predictor variables being: `Product, OPCO, Substrate, Month, Year, DayOfWeek, UnitPrice and Class`. Certain Classes were omitted from the data that were irrelevant as well as records with missing substrate. Additional variables were calculated to pass to the model such as day, week and month of the year. The data was partitioned as prior: 80% of the data was used to train the model and 20% was used to test. Feature importance and proximity measure were set within the model for further analysis and the model was evaluated using the root mean square error rate.
 
-```{r}
+```{r, echo=FALSE}
 # Preprocess Data
 # Load necessary libraries
 library(randomForest)
@@ -1081,8 +1103,9 @@ SaleData1 <- SaleData1 %>%
          DayOfWeek = as.numeric(format(RequestedDeliveryDate, "%u"))) # Weekday (1-7)
 ```
 
-```{r}
+```{r, echo=FALSE}
 library(caret)
+library(randomForest)
 # Split data 
 set.seed(960)
 trainIndex <- createDataPartition(SaleData1$qtyOrdered, p = 0.8, list = FALSE)
@@ -1098,7 +1121,7 @@ rf_inventory <- randomForest(qtyOrdered ~ Product + OPCO + Substrate + Month + Y
                              importance = TRUE,
                              na.action = na.exclude)
 ```
-```{r, eval = FALSE}
+```{r, echo=FALSE}
 # Evaluate the model on test data using Mean Squared Error (MSE) and Root Mean Squared Error 
 # (RMSE) to understand how well it predicts future demand.
 predictions <- predict(rf_inventory, newdata = testData)
@@ -1119,7 +1142,7 @@ print(paste("RMSE:", rmse))
 importance(rf_inventory)
 ```
 
-```{r Feature Importance Plot}
+```{r echo=FALSE}
 library(randomForest)
 library(dplyr)
 library(tidyverse)
