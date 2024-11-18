@@ -1,8 +1,9 @@
 ---
-title: "Power of Random Forest in Business"
-subtitle: "This is a Report Template"
-author: "Stutti (Advisor: Dr. Seals)"
+title: "Random Forests - Applying Machine Learning to Sales Data"
+subtitle: "A Random Forest Model to Predict Client Retention and Product Demand"
+author: "Stutti Smit-Johnson (Advisor: Dr. Seals)"
 date: '`r Sys.Date()`'
+date-format: long
 format:
   html:
     code-fold: true
@@ -18,134 +19,1836 @@ editor:
     wrap: 72
 ---
 
-Slides: [slides.html](slides.html){target="_blank"} ( Go to `slides.qmd`
-to edit)
 
-::: callout-important
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
+## 1 Introduction
 
-Carefully read this template since it has instructions and tips to
-writing!
-:::
+The Random Forest algorithm is a supervised ensemble method used to make predictions. What does this mean? Let’s take a step back and explain Decision trees first. Decision tree, another machine learning algorithm, is a flow chart classifier with nodes and branches. Imagine a tree-like structure. Each internal node represents a “test” on an attribute (feature). Each branch represents the outcome of the test. Each leaf node represents a class label; decision taken after computing all attributes. The path taken from the root to the leaf represents classification rules. These trees have a lot of advantages such as mirroring human decision making, being able to handle numerical and categorical data, performing well with large datasets, de-emphasizing irrelevant features, etc. However, there are some limitations. A small change in the training data can result in a large change in final predictions, the algorithm cannot guarantee returning globally optimal tree and overfitting. Overfitting occurs when overly-complex trees do not generalize well from the training data. We can “prune” decision trees which reduces the depth of complex trees and eliminates small classes. However, pruning is expensive and counter-intuitive in that we are trying to fix a bad model. Instead, we can build a better model a.k.a Random Forests. Ensemble methods are the key behind Random Forests. They are motivated by averaging techniques which means combining outputs from multiple trees to improve accuracy and generalization.
 
-## Introduction
 
-The introduction should:
+## 2 Literature Reviews
 
--   Develop a storyline that captures attention and maintains interest.
+1. The book ‘Data Mining with decision trees: theory and applications’[@Rokach_undated-sg] explains the concepts of decision trees in detail and also all the benefits of this methodology. Due to it’s simple technique in predicting and explaining relationships between measurements about an item and its target value, the use of Decision Trees is very popular and common in the world of data mining. There are several key features of decision trees that are advantageous. Decision Trees are self-explanatory, easy to follow, has relatively small computational effort and high predictive performance, useful for large datasets and is flexible in handling various types of data like nominal, numeric, and textual. Decision Trees classify a target as a recursive partition. It consists of nodes that form a “root” with no incoming edges.  Decision Trees are popular for their simplicity and transparency, therefore, if decision trees become too complicated, in other words have too many nodes, they become useless. For complex trees, other procedures should be developed to simplify interpretation. The book covers pre-pruning, post-pruning and cost-complexity pruning to prevent overfitting and improve generalization of decision trees. The book also examines cross-validation and bootstrapping as validation metrics for evaluating performance, and accuracy of decision trees. The book touches upon some common algorithms for decision tree induction such as ID3, C4.5, CART, CHAID, and QUEST. It also details the disadvantages of decision trees. One such disadvantage is the nearsighted nature of decision tree induction algorithms where inducers look only one level ahead. Such strategies prefer tests that score high in isolation and may overlook combinations of attributes. Using deeper lookahead strategies is considered computationally expensive and not proven useful. All in all, the book is a great guide for anyone that wants to understand decision trees in data mining and its application to practical use cases. 
 
--   Your audience is your peers
 
--   Clearly state the problem or question you're addressing.
+2. The paper written by J.R. Quinlan, Simplifying Decision Trees [@Quinlan1987-cz] discusses decision tree usage within expert/artificial intelligence systems. The problem discussed is that decision trees become too complex too quickly which makes them hard to understand and use in expert systems. Four methods to simplify decision trees discussed are as follows: Cost-Complexity Pruning, Reduced Error Pruning, Pessimistic Pruning and Simplifying to Production Rules.  Each of these methods simplifies the trees by using different pruning ways and removing irrelevant conditions. In order to test these simplified methods, data from six different domains were chosen: Hypothyroid diagnosis, Discordant assay, LEDDigits, Consumer credit applications, Chess Endgame, and Probabilistic classification over disjunctions. Average size of the trees is noted on each: before applying the simplifying methods and after. All pruning methods significantly reduced the complexity of the decision trees. For example, within the Hypothyroid domain, original tree had 23.6 nodes and after applying pruning they went down to between 11.0 and 14.4.  Production rules method achieved the most sizeable simplification – reducing to just 3.0 rules which makes it highly interpretable. The same was true with the Endgame domain. Original tree had 88.8 nodes. After applying the cost complexity pruning and production rules, it went down to 51.0 nodes and 11.6 rules respectively. Through the process of testing, the study was able to prove that simplifying decision trees does lead to better representation, is easier to understand and is useful in producing knowledge for expert systems. 
 
-<!-- -->
 
--   Introduce why it is relevant needs.
+3. The paper ‘Random Forests for Classification in Ecology’[@Cutler2007-pe] is an interesting one since it discusses the use of Random Forests method by ecologists where this method hasn’t been broadly used in this field yet. The paper sets out to demonstrate it’s many uses in Ecology through the examples it discusses.  The Random Forests (RF) algorithm operates by fitting numerous classification trees to a data set and then combines their predictions. It begins by generating many bootstrap samples from the original data, with each sample containing about 63% of the data selected with replacement. The remaining data, which do not appear in these samples, are known as out-of-bag observations. For each bootstrap sample, a classification tree is constructed, but at each decision point within the tree, only a random subset of variables is considered for splitting the data. This randomness in variable selection helps to create diverse trees. Once all the trees are fully grown, they are used to predict the classes of the out-of-bag observations. The final prediction for each observation is made by taking a majority vote across all the trees, with ties being resolved randomly. This ensemble approach enhances the accuracy and stability of the predictions compared to individual trees. 
+Random forests method can be particularly beneficial with ecological data since i) ecological data is often high dimensional with nonlinear and complex interactions among variables and ii) has many missing values among measured variables. Traditional statistical methods such as GLMs may lack in uncovering patterns and relationships we are seeking.  Three different ecological data sets were used in this study: invasive plant species, rare lichen species, and cavity-nesting birds. Using these data sets, the Random forests method was compared to four other classification methods – LDA, logistic regression, additive logistic regression, and classification trees.  Following predictions were made: the presence of invasive species in Lava Beds National Monument, presence of rare lichen species in the Pacific Northwest, and nest presence for cavity-nesting birds in Uinta Mountains, Utah. The random forest method showed high accuracy across all three data sets especially in identifying presences and identifying absences. The paper finally encourages the random forest method’s broader adoption in the field of ecology.
 
--   Provide an overview of your approach.
 
-Example of writing including citing references:
+4. As stated in Leo Breiman’s paper on Random Forests, published in January of 2001: “A random forest is a classifier consisting of a collection of tree-structured classifiers {h(x,Θk ), k=1, ...} where the {Θk} are independent identically distributed random vectors and each tree casts a unit vote for the most popular class at input x.[@Breiman_undated-tp] This paper describes the foundation and concepts of the random forest algorithm and theorizes its ability to improve classification accuracy by combining multiple decision trees. The goal of the paper is to demonstrate the effectiveness of random forests in prediction. The paper uses Amit and Geman [1997] analysis to explain that the accuracy of random forests depends on the strength of the individual tree classifiers and a measure of the dependence between them. It states the various formulas of the algorithm that are responsible for characterizing accuracy of random forests. Additionally, the author discusses using random features for lowering generalization errors than other algorithms including the use of out-of-bag estimates to monitor error, strength and correlation. He discusses his experiments and results and the use of the algorithm with bagging and without. Furthermore, he discusses all the advantages of random forest method: handling large datasets with high dimentionality, providing estimates of variable importance, and dealing with missing data. He states that the use of random inputs and random features while using Random Forest methodology produce good results in classification, less in regression examples. Additionally, he observed lower error rates on his tests on larger data sets as opposed to smaller datasets and suggested that different injections of randomness can produce better results.
 
-*This is an introduction to ..... regression, which is a non-parametric
-estimator that estimates the conditional expectation of two variables
-which is random. The goal of a kernel regression is to discover the
-non-linear relationship between two random variables. To discover the
-non-linear relationship, kernel estimator or kernel smoothing is the
-main method to estimate the curve for non-parametric statistics. In
-kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]*
 
-*This is my work and I want to add more work...*
+5. The paper "Financial Forecast in Business and an Application Proposal: The Case of Random Forest Technique" [@Orhan2023-hm] explores the viability of the Random Forest (RF) algorithm in predicting future financial performance. The study uses data from five companies whose shares have been traded on Borsa Istanbul between 2009 and 2020. Financial statements (between 2009 and 2020) of these businesses were obtained from the Public Disclosure Platform website. Variables such as current & fixed assets, equity, revenue, and net income have been estimated by use of the random forest technique.  As stated in the paper, “Random Forest is frequently preferred in classification and regression analyses because it produces reliable results by using the average of more than one decision tree and allows working with any number of trees (Biau-Scornet,2016:198).”  By leveraging 113 variables, including macroeconomic indicators like inflation, exchange rates, and GDP growth, the RF model showed an overall forecasting accuracy of 90.9%.  The research concludes that Random Forest is an effective tool for financial forecasting in businesses, particularly when coupled with non-financial and macroeconomic factors. However, further enhancements, such as the inclusion of additional external variables, could improve its predictive power in volatile periods like 2020. The study promotes RF as a valuable model for decision-makers in financial planning and risk management, offering high reliability in predicting future financial outcomes.
 
-## Methods
 
--   Detail the models or algorithms used.
+6. As stated in the article, “The theoretical framework examining business performance originates in the paradigm of industrial organization developed during 1940-1950 by Bain and Mason (Porter, 1981) which was further improved by Porter (1979), Schmalensee (1985) and Rumelt (1991).”  Differences in business performance and competitive positions have been studied for decades. The paper titled "Foreign Versus Local Ownership and Performance in Eastern Versus Western EU: A Random Forest Application" [@Horobet2023-bv] discusses how foreign and local ownership influences business performance across the European Union using the Random Forest machine learning algorithm. The study explores differences between Eastern and Western EU firms in 27 industries from 9 sectors between 2009 and 2016. Variables studied are personnel costs, labor productivity, and gross investment. The model results show that personnel costs per employee are the most significant variable differentiating foreign from locally owned companies. The model was applied to 1,080 business units from the EU, each from a different sector and industry, but also region (Eastern or Western part of the EU), and operating under different ownership, i.e., foreign or locally-owned. The main objective of classifying economic activity within the EU is that the authors wanted to identify whether business performance brought on by foreign versus local ownership may be explained by headquarters’ location, industry of operation and a reduced set of other performance variables. It was concluded that locally owned companies have an edge against the foreign-owned ones in terms of the importance of their gross investments compared to turnover and of the ratio between value added and turnover in eight out of nine sectors. These results are a sign that there is a stronger propensity of locally-owned companies towards investments versus a weaker investment activity of foreign-owned companies.
 
--   Justify your choices based on the problem and data.
+## 3 Methods
 
-*The common non-parametric regression model is*
-$Y_i = m(X_i) + \varepsilon_i$*, where* $Y_i$ *can be defined as the sum
-of the regression function value* $m(x)$ *for* $X_i$*. Here* $m(x)$ *is
-unknown and* $\varepsilon_i$ *some errors. With the help of this
-definition, we can create the estimation for local averaging i.e.*
-$m(x)$ *can be estimated with the product of* $Y_i$ *average and* $X_i$
-*is near to* $x$*. In other words, this means that we are discovering
-the line through the data points with the help of surrounding data
-points. The estimation formula is printed below [@R-base]:*
+### Decision Trees – Random Forest
 
-$$
-M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}
-$$$W_n(x)$ *is the sum of weights that belongs to all real numbers.
-Weights are positive numbers and small if* $X_i$ *is far from* $x$*.*
+There are several methods within the Random Forest (RF) algorithm responsible for achieving accuracy and reducing overfitting. As compared to traditional Decision Tree construction, the Random Forest method was selected because it performs better with large datasets, it de-emphasizes irrelevant features and avoids overfitting. We'll take a look at what a single tree looks like below. A Random Forest, then, consists of hundreds of these Decision Trees and predictions are achieved by averaging (for regression) or voting (for classification) from the output of multiple trees. 
 
-*Another equation:*
+```{r, echo=FALSE}
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(caret)
 
-$$
-y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i
-$$
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
 
-## Analysis and Results
+# Fit a Random Forest model to predict TotalPrice (regression)
+rf_model_viz <- randomForest(TotalPrice ~ Substrate +
+                            qtyOrdered + UnitPrice + Class, 
+                            data = SaleData, 
+                            ntree = 50,  # Number of trees (default is 500)
+                            mtry = 3,
+                            na.action = na.exclude) # call to handle missing values
 
-### Data Exploration and Visualization
+# Create a simple decision tree (just for visualization purposes)
+tree_model <- rpart(TotalPrice ~ Substrate + qtyOrdered +
+                            UnitPrice, 
+                            data = SaleData)
 
--   Describe your data sources and collection process.
+# Plot the decision tree
+rpart.plot(tree_model, main = "Decision Tree Visualization")
 
--   Present initial findings and insights through visualizations.
+```
 
--   Highlight unexpected patterns or anomalies.
+**Construction of the forest** - Each tree in the Random Forest is a CART (Classification and Regression Tree), meaning the trees are binary and split the data into two subsets at each node. This means a tree might split on Client, then split the resulting data on Product, and then split again on Quantity Ordered. Thus, every path from root to leaf node represents unique conditions that lead to a prediction, for example total sales value. 
 
-A study was conducted to determine how...
+**Forest Size** - One hyperparameter (parameter whose value controls the learning process) in the forest is the number of trees (ntree) in the forest. It is common to use a larger number of trees, example 100, 500, etc., to reduce variance. We may start with 100 trees in our forest and each tree will provide a bit different prediction for the target variable. Our final output will be based on the aggregate of all trees in our forest. The more trees, the better however the trade-off is computational cost.
 
-```{r, warning=FALSE, echo=T, message=FALSE}
-# loading packages 
+#### Main Components of the Random Forest Method
+
+1. **Bootstrap Aggregation (Bagging):** generating multiple subsets of training data by randomly sampling with replacement. For example, Tree 1 may include sales records 1, 2, 3, 4, and 10 multiple times, while Tree 2 may include records 4 and 10 also. Each decision tree in the forest is trained on a different bootstrap sample. Each tree can independently "overfit" its bootstrap sample, but when combined, the average prediction is much more accurate and less prone to overfitting.
+
+2. **Random Feature Selection:** At each node of every tree, instead of considering all features for the best split, Random Forest randomly selects a subset of features. This means that at one node, the algorithm may look at Product and Quantity Ordered to make the split, while at another node, it may look at Client and Total Price. This method reduces correlation among the trees, making the ensemble more robust and accurate. This also prevents any single feature from dominating the decision process in every tree.
+
+3. **Feature Importance:** RF algorithm ranks features based on their contribution to accuracy. Random forests can calculate feature importance by analyzing how often a feature is used to split data across all trees as well as how well it improves the purity of tree nodes. There are two methods used for feature importance calculation. Random forests can be used to rank the importance of variables in regression or classification problems via two measures of significance:  The second, referred to as 
+
+  a. `Mean Decrease Impurity` (MDI; see Breiman 2003a), or Gini Importance, is based on the total             decrease in node impurity from splitting on the variable, averaged over all trees. This method           measures a feature’s contribution to reducing the Gini Impurity (Classification) or reducing the         Mean Squared Error (Regression) across the forest.
+      
+  b. `Mean Decrease Accuracy` (MDA), or Permutation Importance, measures decrease in the model’s              accuracy. A feature leading to a significant drop in accuracy is considered important. For example,
+     Product and Client may prove the most important features for predicting Total Price but
+     Order Status and Delivery Date may be less important. This concept was first defined by Breiman          (2001) also, and stems from the idea that if the variable is not important, then rearranging its         values should not degrade prediction accuracy. [@Biau2016-so] 
+
+4.	**Out-of-Bag (OOB) Error Estimation:** This provides an internal method of validating the model’s accuracy without needed a separate test set. Since each tree is trained on a bootstrap sample, some data points are left out, called Out-of-Bag samples. These OOB samples are used to get unbiased estimates of model accuracy without the need for a separate validation set. For example, if record 100 of our data was not used to train Tree 1, Tree 1 can still predict Total Price for that record, and we can compare the prediction to the actual Total Price.
+
+#### Mathematical Concepts of the Random Forest Method
+
+
+  1. `Mean Squared Error (MSE)`: For a continuous target variable, such as *Total Price*, the criteria for splitting at each node is based on minimizing the `(MSE)`:
+
+      $$ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y})^2 $$
+where:
+
+•	$N$ = number of data points in the node
+
+•	$yi$ = actual value of the target variable for the 𝑖-th data point
+
+•	$\hat{y}i$= predicted value (average of the target variable in the node)
+
+
+  2. `OOB Error` is an internal estimate of the model's performance. The OOB MSE is calculated as:
+  
+      $$ OOB\_ MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}OOB,i)^2 $$
+where:
+
+•	 $\hat{y}OOB,i$ is the average of the predictions for the 𝑖-th data point across all trees where that point was not included in the bootstrap sample.
+
+
+  3. `Gini Impurity` is a measure used to determine the best split. 
+  
+      $$ G = 1 − \sum_{k=1}^{k} P_k^2 $$
+where:
+
+•	$P_k$ represents the proportion of samples of class k in the node and K is the number of classes.
+
+
+#### Statistical Programming
+
+Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio "Cranberry Hibiscus" Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. 
+
+Several R packages were installed, including the randomForest package available within R. Some of the packages and their libraries and functions are described below.
+
+**•	dplyr:** A fast, consistent tool for working with data frame like objects, both in memory and out             of memory. [@cite_dplyr]
+
+**•	knitr:** This package implements a programming paradigm that intermingles code chunks (for                     computing) with prose (for documentation) in the same document. When compiling the                    document, this package is responsible for executing the code chunks, and the results from              computing (text   or graphics) are automatically written to the output along with the                 prose. [@cite_knitr]
+
+**•	ggplot2:** R package for producing visualizations of data. Unlike many graphics packages, ggplot2   uses a conceptual framework based on the grammar of graphics. [@cite_ggplot2]
+
+**•	treemap:** A treemap is a space-filling visualization of hierarchical structures. This package                   offers great flexibility to draw treemaps and was used to display a treemap of Total                  Sales by Product. [@cite_treemap]
+
+**•	caret:** Short for Classification And REgression Training, this package contains functions to                  streamline the model training process for complex regression and classification problems.              [@cite_caret]
+
+**•	randomForest:** This package contains the algorithm that implements Breiman's random forest                           algorithm (based on Breiman and Cutler's original Fortran code) for classification                     and regression. [@cite_RF]
+
+**•	createDataPartition:** This is a function from the caret package that was used to partition or                               split the data for training and testing. [@cite_caret]
+
+**•	importance:** This is a extractor function for variable importance measures as produced by the                      randomForest algorithm. [@cite_RF]
+
+**•	predict:** This is a generic function in R to run predictions from the results of various model                  fitting functions. The model was the randomForest model in this case and using the                    trained data,   a new test data set was used to make predictions. [@cite_R]
+
+
+## 4 Analysis and Results
+
+### 4.1 Data Description 
+
+The source data contained sales transactions for a span of 48 months and came from SSI, a Florida based B2B2C type company. The company offers custom packaging in the food industry. It offers custom branding and design as well as actual supply of the products. Customers may have transactional based sales where each order serves as it’s own agreement or customers may have a long term contract where they agree to purchase a product or several products through the course of a six month period or a year, or agree to purchase a set quantity over a period of time, for example. Once these agreements are established, the customer instructs it’s distributor to purchase from SSI and deliver to them. So, the purchase order, in reality comes from this distributor and not the end client. The data extracted contains information on both the distributor as well as the end client. It also contains product information as well as delivery location. The SQL code used to extract this data is included in the Appendix. 
+
+Below you will find the data dictionary of the SSI Sales data.
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-style:solid;border-width:0px;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;
+  padding:6px 5px;word-break:normal;}
+.tg th{border-style:solid;border-width:0px;font-family:Arial, sans-serif;font-size:14px;font-weight:normal;
+  overflow:hidden;padding:6px 5px;word-break:normal;}
+.tg .tg-m2gh{background-color:#FFF;border-color:#340096;color:#212529;font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-5ynp{background-color:#CFE2F3;border-color:#340096;font-weight:bold;text-align:center;vertical-align:top}
+.tg .tg-mlwe{background-color:#212529;border-color:#340096;text-align:left;vertical-align:bottom}
+.tg .tg-hznj{background-color:#0F9ED5;border-color:#340096;color:#FFF;font-weight:bold;text-align:left;vertical-align:top}
+.tg .tg-prjj{border-color:#340096;color:#212529;text-align:left;vertical-align:bottom}
+.tg .tg-w43o{background-color:#FFF;color:#212529;font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-jx9g{color:#212529;text-align:left;vertical-align:bottom}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-5ynp" colspan="3"><span style="font-weight:bold;background-color:#CFE2F3">Data Dictionary</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-mlwe" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-hznj"><span style="font-weight:bold;color:#FFF;background-color:#0F9ED5">Attribute</span></td>
+    <td class="tg-hznj"><span style="font-weight:bold;color:#FFF;background-color:#0F9ED5">Format</span></td>
+    <td class="tg-hznj"><span style="font-weight:bold;color:#FFF;background-color:#0F9ED5">Description</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">OPCO</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">The customer placing the order. In this case, typically a Distributor.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">SalesOrderID</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Unique identifier assigned to each sales order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">CustomerPO</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Customer’s identifier of their order sent to BCC.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">Product</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Unique identifier assigned to each product.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">Description</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Description of the product being sold.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">Substrate</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Type of product/material.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">RequestedDeliveryDate</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Date the delivery was scheduled originally.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-m2gh"><span style="font-weight:bold;color:#212529;background-color:#FFF">DateFulfilled</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Date the delivery was made.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">qtyOrdered</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Numeric</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Quantity ordered on the order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">qtyFulfilled</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Numeric</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Quantity delivered on the order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">UnitPrice</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Numeric</span></td>
+    <td class="tg-prjj"><span style="font-weight:normal;color:#212529">Price of each case of product SSI charges the customer.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">TotalPrice</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Numeric</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Total price of the sales order.</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">Class</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Customer name</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">ShipToName</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Address name of ordering party</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">ShipToAddress</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Address where order needs to be delivered</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">SalesOrderStatus</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Status of Sales order</span></td>
+  </tr>
+  <tr>
+    <td class="tg-w43o"><span style="font-weight:bold;color:#212529;background-color:#FFF">SalesItemStatus</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Varchar</span></td>
+    <td class="tg-jx9g"><span style="font-weight:normal;color:#212529">Status of each line item on the sales order</span></td>
+  </tr>
+</tbody></table>
+
+### 4.2 Load Data
+
+The data available in a CSV file was read into and loaded in RStudio. Below is a snapshot of the file. The base file had 33,818 observations and 17 variables in the data.
+
+```{r, eval = FALSE}
 library(tidyverse)
 library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
+
+kable(head(SaleData))
 ```
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
+  overflow:hidden;padding:3px 1px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
+  font-weight:normal;overflow:hidden;padding:3px 1px;word-break:normal;}
+.tg .tg-2b7s{text-align:right;vertical-align:bottom}
+.tg .tg-qag3{background-color:#A4C2F4;font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-z5rg{color:#B0B0B0;font-style:italic;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">OPCO</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesOrderID</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">CustomerPO</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Product</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Description</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Substrate</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">RequestedDeliveryDate</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">DateFulfilled</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">qtyOrdered</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">QuantityFulfilled</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">UnitPrice</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">TotalPrice</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Class</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">ShipToName</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">ShipToAddress</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesOrderStatus</span></th>
+    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesItemStatus</span></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">WS-INDSC-02</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Wings .75" Label Sweet DineLink 500/rl</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">122</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">122</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">2.5</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">305</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">WS-INDHG-02</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Wings .75" Label Honey Garlic 500/rl</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">66</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">66</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">2.5</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">165</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Subtotal</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1105</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">8341</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">CG-SW-02 4M</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss Sandwich Wrap 13x13</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4/13/22</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4/19/2022</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">3</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">3</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">84</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">252</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Berl Company</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">1506 East Buena Vista Dr, Orlando, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">8341</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Shipping Charge</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Shipping Charge</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">other</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4/13/22</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4/19/2022</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">43.69</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">43.69</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Berl Company</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">1506 East Buena Vista Dr, Orlando, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Lake Buena Vista</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">10691</span></td>
+    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">CG-CBX-01</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss Catering Box 2 Sauce Holders each side 40/bundle</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">cardboard</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">2/1/23</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1/31/2023</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">2</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">2</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">79.6</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">159.2</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Lake Buena Vista</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">1506 E. Buena Drive Suite A, Lake Buena Vista, FL</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
+  </tr>
+</tbody></table>
 
-```{r, warning=FALSE, echo=TRUE}
-# Load Data
-kable(head(murders))
 
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
-
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
-
-```
-
-### Modeling and Results
-
--   Explain your data preprocessing and cleaning steps.
-
--   Present your key findings in a clear and concise manner.
-
--   Use visuals to support your claims.
-
--   **Tell a story about what the data reveals.**
+Below you will find visualizations of some of the key data features used in this research paper. The distributions helped uncover negative values, outliers and aided with data processing.
 
 ```{r}
+library(tidyverse)
+library(ggplot2)
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
+
+# 1: Create a histogram of totalprice across sales orders
+ggplot(SaleData, aes(x = TotalPrice)) +
+  geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Total Prices", x = "Total Price", y = "Frequency")
+#summary(SaleData$TotalPrice)
+
+# 2: Create a histogram of quantity across sales orders
+ggplot(SaleData, aes(x = qtyOrdered)) +
+  geom_histogram(binwidth = 400, fill = "gray", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Quantity Ordered", x = "Quantity", y = "Frequency")
+#summary(SaleData$qtyOrdered)
+
+library(scales)
+# 3: Create a pie chart for TotalSales by Substrate
+substrate_sales <- SaleData %>%
+  group_by(Substrate) %>%
+  summarise(TotalSubstrateSales = sum(TotalPrice, na.rm = TRUE)) %>%
+  arrange(desc(TotalSubstrateSales)) 
+
+# configure sales to currency
+substrate_sales$legend_label <- paste(substrate_sales$Substrate, "-", dollar(substrate_sales$TotalSubstrateSales))
+
+ggplot(substrate_sales, aes(x = "", y = TotalSubstrateSales, fill = legend_label)) +
+  geom_bar(stat = "identity", width = 1) +  # Create bar chart
+  coord_polar("y") +  # Convert bar chart to pie chart
+  labs(title = "Total Sales by Substrate", fill = "Substrate and Sales") +  
+  theme_void()  # Remove axis labels and background
 
 ```
+These visualizations were helpful in realizing what data processing was needed and what our target data should look like. Below are the findings:
+
+  A. Not only is `TotalPrice` heavily skewed left but there are negative values that will corrupt our       analysis. [Min:-72000 | Mean:3024 | Max:143084]
+  
+  B. The `qtyOrdered` is skewed left with majority values below 60. [Min:1 | Mean:60 | Max:23160]
+  
+  C. There are missing `Substrate` values (N/A and Other) in the amount of $2,888,731 
+
+
+### 4.3 Preprocessing of Data
+
+The dataset consisted of sales returns and credits to the customer. These were excluded in order to avoid false outcomes and predictions. There were also records related to shipping costs that were excluded. As an example, there may have been out of the norm activity when SSI encountered inbound shipment delays and SSI needed to airfreight product to customers at a higher than normal shipping rate. We do not want skewed results and hence, this activity was omitted.
+
+The data cleansing was performed as described above. Below are some visualizations that show performance by Product, Price and Total Sales for this dataset. 
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+#Load data
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv')
+
+# List of products to exclude
+exclude_products <- c("OUTBOUND SHIPPING", "Outbound Shipping", "Shipping Charge", "SHIPPING CHARGE")  
+
+# Filter out returns/credits (Price <= 0) and shipping charges
+SaleData1 <- SaleData %>%
+  filter(UnitPrice > 0, TotalPrice > 0, !Product %in% exclude_products)
+
+# 1: Bar chart: Top 20 Products by Qty Ordered
+product_qty <- SaleData1 %>%
+  group_by(Product) %>%
+  summarise(TotalQuantityOrdered = sum(qtyOrdered, na.rm = TRUE)) %>%
+  arrange(desc(TotalQuantityOrdered)) %>%
+  head(20)
+
+ggplot(product_qty, aes(x = reorder(Product, TotalQuantityOrdered), y = TotalQuantityOrdered)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme_minimal() +
+  coord_flip() +
+  labs(title = "Top 20 Products by Total Quantity Ordered", x = "Product", y = "Total Quantity Ordered")+
+  theme(
+    plot.background = element_rect(color = "black", fill = NA, size = 1)  # Adds a black border around the plot area
+  )
+```
+```{r}
+# Create a treemap of total sales by product
+library(treemap)
+
+product_sales <- SaleData1 %>%
+  filter(!Product %in% exclude_products) %>%
+  group_by(Product) %>%
+  summarise(pSales = sum(TotalPrice, na.rm = TRUE)) %>%
+  arrange(desc(pSales)) %>%
+  head(20)
+
+# Create a treemap of total sales by product
+treemap(product_sales,
+        index = "Product",
+        vSize = "pSales",
+        title = "Treemap of Highest Sales by Product",
+        palette = "Pastel1") # "PuBu"
+```
+
+```{r}
+# Create heatmap - Top distributors by Orders
+top_dist <- SaleData1 %>%
+  group_by(OPCO) %>%
+  summarise(Order_Count = n_distinct(SalesOrderID)) %>%
+  arrange(desc(Order_Count)) %>%
+  head(20)
+
+ggplot(top_dist, aes(x = "", y = OPCO, fill = Order_Count)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "darkblue") +
+  labs(title = "Heatmap of Top Distributors by Number of Orders", y = "Distributors") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+And lastly, SSI's sales shown over time in the line plot below.
+
+```{r}
+# Sales Over Time
+library(lubridate)
+library(scales)
+
+# Convert DateFulfilled in date format
+### SaleData1$DateFulfilled <- ymd(SaleData1$DateFulfilled) ### Did not work
+SaleData1$parsed_dates <- parse_date_time(SaleData1$DateFulfilled, orders = c("ymd", "mdy", "dmy", "Ymd", "Y-m-d"))
+SaleData1$parsed_dates <- ymd(SaleData1$parsed_dates)
+
+# Summarize total sales by quarter
+sales_over_time <- SaleData1 %>%
+  mutate(nDate = floor_date(parsed_dates, "quarter")) %>%
+  group_by(nDate) %>%
+  summarize(TotalSales = sum(TotalPrice, na.rm = TRUE))
+
+# Create a new variable for quarters
+sales_over_time$Quarter <- quarter(sales_over_time$nDate)
+
+# Plot total sales over time with quarterly labels
+ggplot(sales_over_time, aes(x = nDate, y = TotalSales)) +
+  geom_line(color = "blue") +
+  geom_point() +
+  scale_x_date(date_labels = "Q% %Y", date_breaks = "3 months") +
+  labs(title = "Total Sales Over Time (Quarterly)", x = "Quarter", y = "Total Sales") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+Below you will find **Table 1** with some statistics summaries of the data.  
+
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-266k{background-color:#9b9b9b;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+.tg .tg-py60{background-color:#ffffc7;border-color:inherit;font-weight:bold;text-align:center;vertical-align:top}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;vertical-align:top}
+.tg .tg-ntfp{background-color:#96fffb;border-color:inherit;font-weight:bold;text-align:left;vertical-align:top}
+.tg .tg-7btt{border-color:inherit;font-weight:bold;text-align:center;vertical-align:top}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-py60" colspan="4"><span style="font-weight:bold">Forest Foresight - SSI Sales Data</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-266k" colspan="4"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-fymr"><span style="font-weight:bold">Total Orders</span></td>
+    <td class="tg-fymr"><span style="font-weight:bold">Closed Short</span></td>
+    <td class="tg-fymr"><span style="font-weight:bold">Fulfilled</span></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-fymr"><span style="font-weight:bold">(n=7585)</span></td>
+    <td class="tg-fymr"><span style="font-weight:bold">(n=733)</span></td>
+    <td class="tg-fymr"><span style="font-weight:bold">(n=6852)</span></td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Top Customers</span></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">Smoothie Island</span></td>
+    <td class="tg-c3ow"><span style="font-weight:normal">1701 (22.43%)</span></td>
+    <td class="tg-c3ow">455 (62.07%)</td>
+    <td class="tg-c3ow">1246 (18.18%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Philly Bite</td>
+    <td class="tg-c3ow">1556 (20.51%)</td>
+    <td class="tg-c3ow">267 (36.43%)</td>
+    <td class="tg-c3ow">1289 (18.81%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">PlatePioneers</td>
+    <td class="tg-c3ow">1396 (18.40%)</td>
+    <td class="tg-c3ow">143 (19.51%)</td>
+    <td class="tg-c3ow">1253 (18.29%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Berl Company</td>
+    <td class="tg-c3ow">906 (11.94%)</td>
+    <td class="tg-c3ow">5 (0.68%)</td>
+    <td class="tg-c3ow">901 (13.15%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">DineLink Intl</td>
+    <td class="tg-c3ow">589 (7.77%)</td>
+    <td class="tg-c3ow">42 (5.73%)</td>
+    <td class="tg-c3ow">547 (7.98%)</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Top Products</span></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">DC-01&nbsp;&nbsp;(Drink carrier) </span></td>
+    <td class="tg-c3ow">1135 (14.96%)</td>
+    <td class="tg-c3ow">345 (47.07%)</td>
+    <td class="tg-c3ow">790 (11.53%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">TSC-PQB-01&nbsp;&nbsp;(Paper Quesadilla Clamshell)&nbsp;&nbsp;&nbsp;</span></td>
+    <td class="tg-c3ow">1087 (14.33%)</td>
+    <td class="tg-c3ow">389 (53.07%)</td>
+    <td class="tg-c3ow">698 (10.19%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">TSC-PW14X16-01&nbsp;&nbsp;(1-Play Paper Wrapper)</span></td>
+    <td class="tg-c3ow">848 (11.18%)</td>
+    <td class="tg-c3ow">283 (38.61%)</td>
+    <td class="tg-c3ow">565 (8.25%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">CMI-PCK-01&nbsp;&nbsp;(Wrapped Plastic Cutlery Kit)</span></td>
+    <td class="tg-c3ow">802 (10.57%)</td>
+    <td class="tg-c3ow">288 (39.29%)</td>
+    <td class="tg-c3ow">514 (7.50%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"><span style="font-weight:normal">PC-05-B1&nbsp;&nbsp;(Black 5oz Container)</span></td>
+    <td class="tg-c3ow">745 (9.82%)</td>
+    <td class="tg-c3ow">220 (30.01%)</td>
+    <td class="tg-c3ow">525 (7.66%)</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Top Distributors</span></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Ed Don &amp; Company - Miramar</td>
+    <td class="tg-c3ow">210 (2.77%)</td>
+    <td class="tg-c3ow">0 (0.00%)</td>
+    <td class="tg-c3ow">210 (3.06%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">PFG- Gainesville</td>
+    <td class="tg-c3ow">197 (2.60%)</td>
+    <td class="tg-c3ow">0 (0.00%)</td>
+    <td class="tg-c3ow">197 (2.88%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Ed Don &amp; Company - Woodridge</td>
+    <td class="tg-c3ow">186 (2.45%)</td>
+    <td class="tg-c3ow">0 (0.00%)</td>
+    <td class="tg-c3ow">186 (2.71%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Ed Don &amp; Company - Mira Loma</td>
+    <td class="tg-c3ow">180 (2.37%)</td>
+    <td class="tg-c3ow">0 (0.00%)</td>
+    <td class="tg-c3ow">180 (2.63%)</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">.Ed Don - Miramar</td>
+    <td class="tg-c3ow">162 (2.14%)</td>
+    <td class="tg-c3ow">0 (0.00%)</td>
+    <td class="tg-c3ow">162 (2.36%)</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Top Substrates</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Paper</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Plastic</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Bagasse</span></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Revenue($103,826,286)</td>
+    <td class="tg-c3ow">$54,838,585 (52.82%)</td>
+    <td class="tg-c3ow">$40,336,669 (38.85%)</td>
+    <td class="tg-c3ow">$4,350,337 (4.19%)</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Quantity Ordered</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Min</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Mean</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Max</span></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Total Ordered(1,971,237)</td>
+    <td class="tg-c3ow">1</td>
+    <td class="tg-c3ow">61.47</td>
+    <td class="tg-c3ow">23,160</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Unit Price</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Min</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Mean</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Max</span></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Key Stats</td>
+    <td class="tg-c3ow">$0.16 </td>
+    <td class="tg-c3ow">$62.60 </td>
+    <td class="tg-c3ow">$864.00</td>
+  </tr>
+  <tr>
+    <td class="tg-ntfp"><span style="font-weight:bold">Total Price</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Min</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Mean</span></td>
+    <td class="tg-7btt"><span style="font-weight:bold">Max</span></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Key Stats</td>
+    <td class="tg-c3ow">$4.92 </td>
+    <td class="tg-c3ow">$3,430.74 </td>
+    <td class="tg-c3ow">$143,084.74</td>
+  </tr>
+</tbody></table>
+
+#### Table 2 - Factors Impacting Consumer Behavior
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:6px 3px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:6px 3px;word-break:normal;}
+.tg .tg-6bug{background-color:#dae8fc;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-xpud{background-color:#ffffc7;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-nrix{text-align:center;vertical-align:middle}
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 743px"><colgroup>
+<col style="width: 63px">
+<col style="width: 134px">
+<col style="width: 201px">
+<col style="width: 179px">
+<col style="width: 166px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-j6zm"><span style="font-weight:bold">Table 2:</span></th>
+    <th class="tg-j6zm" colspan="4"><span style="font-weight:bold">Identified Factors having causal impact on consumer buying behavior</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-7zrl" rowspan="7"></td>
+    <td class="tg-7zrl"></td>
+    <td class="tg-xpud">Demographics</td>
+    <td class="tg-xpud">Behavioral</td>
+    <td class="tg-xpud">Seasonal</td>
+  </tr>
+  <tr>
+    <td class="tg-6bug" rowspan="6">Factors<br><br></td>
+    <td class="tg-nrix" rowspan="6">Geography<br><br><br></td>
+    <td class="tg-nrix" rowspan="3">Product</td>
+    <td class="tg-nrix" rowspan="2">Quantity</td>
+  </tr>
+  <tr>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="2">Total Price</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="3">Substrate</td>
+  </tr>
+  <tr>
+    <td class="tg-nrix" rowspan="2">Date</td>
+  </tr>
+  <tr>
+  </tr>
+</tbody>
+</table>
+
+
+### 4.4 Analysis
+
+#### Test the Methodology
+
+Initially, a preliminary Random Forest model was run to understand and test the methodology; a model to predict `TotalPrice` (regression problem). `TotalPrice` being the target variable and `OPCO, Product, Substrate, RequestedDeliveryDate, qtyOrdered, UnitPrice and Class` being the predictor variables. Two iterations were run; first model with 100 trees and second with 300 trees. Since this was a regression model, I proceeded to investigate and compare the methodology used in the two models.  
+
+```{r, eval = FALSE}
+# Split the data into training and testing sets
+set.seed(6079)
+trainIndex <- createDataPartition(SaleData1$TotalPrice, p = 0.8, list = FALSE, times = 1)
+trainData <- SaleData1[trainIndex, ]
+testData  <- SaleData1[-trainIndex, ]
+
+# *Model 1* - Fit a Random Forest model to predict TotalPrice (regression)
+rf_model1_test <- randomForest(TotalPrice ~ OPCO + Product + Substrate + RequestedDeliveryDate + qtyOrdered +
+                            UnitPrice + Class, 
+                            data = trainData, 
+                            ntree = 100,  # Number of trees (default is 500)
+                            mtry = 3,
+                            importance = TRUE, 
+                            proximity = TRUE,
+                            na.action = na.exclude) # call to handle missing values
+
+```
+
+```{r, eval = FALSE}
+# *Model 2* - Fit a Random Forest model to predict TotalPrice (regression)
+rf_model2_test <- randomForest(TotalPrice ~ OPCO + Product + Substrate + RequestedDeliveryDate + qtyOrdered +
+                          UnitPrice + Class, 
+                          data = trainData, 
+                          ntree = 300,  # Number of trees (default is 500)
+                          mtry = 3,
+                          importance = TRUE, 
+                          proximity = TRUE,
+                          na.action = na.exclude) # call to handle missing values
+```
+
+**Feature Importance**: The results showed that Model 2 relied more heavily on `qtyOrdered` and `UnitPrice` for accurate predictions, and it incorporated factors like `Product, Substrate, and RequestedDeliveryDate` to refine predictions better than compared to Model 1. Looking at the prediction plots for both model 1 and 2, it appeared the points were very close to or overlapping along the diagonal line which indicated that the model was making accurate predictions. There didn't appear to be a significant difference between the two models.
+
+**OBB Error**: The OOB Error was not directly listed in the model outputs but we can infer about the models' performance from the numbers provided. The mean squared residuals for both models was extremely high which means that the squared differences between the observed values and the predicted values was high. However, the variance percentage estimates for the two models were very similar at 97.56% and 97.61%. Both models indicated that they can explain nearly all the variance in TotalPrice based on the features provided and suggest a low OOB error.
+
+**Proximity Matrix**: The heatmap of proximity matrix showed dark red colors indicating higher proximity, meaning that those two observations were often used in the same leaf node across the trees in the random forest. 
+
+**RMSE**: Root mean squared error calculated for Model 1 was 1239.6 and for Model 2 was 1226.8. Considering the mean `TotalPrice` is around $3,400, this indicates a very high prediction error. I would suggest going back to the data to investigate further before proceeding.
+
+```{r, eval=FALSE}
+# Get importance of each feature
+importance(rf_model1)
+importance(rf_model2)
+
+# Plot feature importance
+varImpPlot(rf_model1, main="Model 1-Feature Importance")
+varImpPlot(rf_model2, main="Model 2-Feature Importance")
+
+# Get OOB error estimate
+print(rf_model1)
+print(rf_model2)
+
+# Model 1 Proximity
+proximity_matrix <- rf_model1$proximity
+# Randomly sample 1000 observations
+sample_indices <- sample(nrow(proximity_matrix), 1000)
+proximity_matrix_sample1 <- proximity_matrix[sample_indices, sample_indices]
+
+heatmap(proximity_matrix_sample1, 
+        main = "Proximity Matrix Heatmap (Sampled-Model 1)", 
+        xlab = "Observations", 
+        ylab = "Observations", 
+        col = heat.colors(256), 
+        scale = "none")
+
+# Model 2 Prox
+proximity_matrix2 <- rf_model2$proximity
+# Randomly sample 1000 observations
+sample_indices2 <- sample(nrow(proximity_matrix2), 1000)
+proximity_matrix_sample2 <- proximity_matrix2[sample_indices2, sample_indices2]
+
+heatmap(proximity_matrix_sample2, 
+        main = "Proximity Matrix Heatmap (Sampled-Model 2)", 
+        xlab = "Observations", 
+        ylab = "Observations", 
+        col = heat.colors(256), 
+        scale = "none")
+
+# Clean data - Filter out rows with NA in test data
+# colSums(is.na(testData))
+testData <- testData %>% drop_na(Substrate)
+
+# Model 1 - Predict TotalPrice on new data
+predictions1 <- predict(rf_model1, newdata = testData)
+
+# Create a dataframe with Actual and Predicted values
+plot_data <- data.frame(
+  Type = rep(c("Actual", "Predicted"), each = length(testData$TotalPrice)),
+  Value = c(testData$TotalPrice, predictions1),
+  Reference = rep(testData$TotalPrice, 2) # Repeat Actuals for consistent x-axis
+)
+
+# Create the plot
+ggplot(plot_data, aes(x = Reference, y = Value, color = Type)) +
+  geom_point(shape = 1) + # Points with different colors for Actual and Predicted
+  geom_abline(slope = 1, intercept = 0, color = "black", linetype = "dashed") + # 1:1 line
+  labs(
+    title = "Actual vs Predicted TotalPrice (Model 1)",
+    x = "Actual TotalPrice",
+    y = "TotalPrice",
+    color = "Legend"
+  ) +
+  scale_color_manual(values = c("Actual" = "red", "Predicted" = "blue")) + # Custom colors
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) # Center the title
+
+# Model 2
+# Predict TotalPrice on new data
+predictions2 <- predict(rf_model2, newdata = testData)
+
+# First, create the plot for Actual values
+plot(testData$TotalPrice, predictions2, 
+     col = "red",  # Set the color to blue
+     main = "Actual vs Predicted TotalPrice (Model 1)",  # Add a title
+     xlab = "Actual TotalPrice",  # Label for x-axis
+     ylab = "Predicted TotalPrice",  # Label for y-axis
+     pch = 1)  # Plot character (16 is for solid circle)
+
+# Filter out rows with NA in either TotalPrice or predictions
+valid_indices <- !is.na(testData$TotalPrice) & !is.na(predictions1)
+
+# Calculate residuals - model 1
+residuals1 <- testData$TotalPrice - predictions1
+# print(residuals1)
+
+# plot the residuals - model 1
+plot(predictions1, residuals1, main = "Residuals vs Predictions (Model 1)", 
+     xlab = "Predicted TotalPrice", ylab = "Residuals", pch = 20)
+abline(h = 0, col = "blue")
+
+# Calculate residuals - model 1
+residuals2 <- testData$TotalPrice - predictions2
+# print(residuals1)
+
+# plot the residuals - model 1
+plot(predictions2, residuals2, main = "Residuals vs Predictions (Model 2)", 
+     xlab = "Predicted TotalPrice", ylab = "Residuals", pch = 10)
+abline(h = 0, col = "red")
+
+# Calculate MSE and RMSE - model 1
+mse1 <- mean(residuals1^2)
+rmse1 <- sqrt(mse1)
+
+# Calculate MSE and RMSE - model 2
+mse2 <- mean(residuals2^2)
+rmse2 <- sqrt(mse2)
+```
+Below are some of the output graphs from the Model 1 test above. 
+
+<img src="/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/TestModel1_images.png" alt="Model 1" width="900">
+
+Now that we are more familiar with the Random Forest methods, let's move on to some relevant problems and use cases that businesses typically face. We will consider two such cases; one is to predict <u>`Customer Churn`</u> (Classification model) and another to predict <u>`Inventory Demand`</u> (Regression model).
+
+### 4.5 Analysis and Results
+
+#### 1st Use Case
+
+**Customer Churn**: A Random Forest Classification model was created to predict Customer retention using some of the features from the SSI Sales dataset. Predicting churn is crucial because it allows organizations to proactively engage customers who may leave, improving retention and reducing revenue loss. A churn indicator was not available in the historical sales data, therefore, it was defined and appended to the dataset. If the last order date for a Client was older than 2 months from the date the extract was taken, a churn indicator of 1 was selected and if order date was within the prior 2 months, a churn indicator of 0 was selected [churn (1) and no-churn (0)]. Churn was based on purchase frequency; assuming clients typically order monthly, clients were flagged in case an order had not been placed in more than two months. In that case, the client was considered churned. 
+
+```{r, echo=FALSE}
+# Since we don't have a variable for churn, Define churn based on purchase frequency
+## Convert DateFulfilled from character string to Date type format
+SaleData1$DateFulfilled <- as.Date(SaleData1$DateFulfilled, format = "%m/%d/%Y")
+
+## Find last fulfilled date for each client
+client_last_order <- SaleData1 %>%
+  group_by(Class)  %>%
+  summarize(LastOrderDate = max(DateFulfilled, na.rm = TRUE))
+
+# Define the cutoff date for churn (2 months before the end of the dataset)
+cutoff_date <- as.Date("2024-09-17") - months(2)
+
+# Add churn indicator based on the cutoff date
+client_last_order <- client_last_order %>%
+  mutate(churned = ifelse(LastOrderDate < cutoff_date, 1, 0))
+
+# Add churn indicator to original dataset
+SaleData1 <- SaleData1 %>%
+  left_join(client_last_order, by = "Class")
+```
+
+The `churn` variable was modeled using the randomForest() function in R. The model was trained to predict churn based on the following predictors:
+
+  **•	Class:** The Client affected on the sale.
+  
+  **•	Product:** The Product being sold.
+  
+  **•	qtyOrdered:** Quantity ordered on the sale.
+  
+  **•	DateFulfilled:** Date the sale was completed.
+
+```{r, echo=FALSE}
+library(caret)
+library(randomForest)
+# Define target variable
+SaleData1$churned <- as.factor(SaleData1$churned) # Ensure churn is a factor
+
+# Partition the data into training and testing sets
+set.seed(135) # For reproducibility
+trainIndex <- createDataPartition(SaleData1$churned, p = 0.8, list = FALSE)
+trainData <- SaleData1[trainIndex, ]
+testData <- SaleData1[-trainIndex, ]
+
+# Train the Random Forest model
+rf_model_churn <- randomForest(churned ~ Product + DateFulfilled +
+                         qtyOrdered + Class, 
+                         data = trainData, 
+                         ntree = 300, # Number of trees
+                         mtry = 3, # Number of variables tried at each split
+                         importance = TRUE)
+
+```
+The model was created using tree size of 300 (ntree = 300). Feature importance and proximity measure were set within the model for further analysis. The createDataPartition() function in R was used to split the data into training and test sets based on target variable `churned` and it's distribution was maintained between the two sets. 80% of the data was used to train data and 20% was used to test. The training set was used to train the random forest model and helped it learn the relationships between the predictors and the target variable. The testing set was used to evaluate the model's performance. The number of variables were randomly sampled at each split (mtry = 3) using the default value of 3. We review the churn model using the various visualizations below.   
+
+Using the tree depth and splits below, let's explore how many times each feature was used to split the nodes. This is a graph of distribution of minimal depth for the variables used in this RF model. It provides us information on how frequently these variables appear at different depths across the ensemble of trees. The minimal depth (0 to 8) is the position in a tree where a variable is first used to split. Lower depths (0, 1, 2 for example) indicate that the variable was used early in the tree, and suggests higher importance. The mean minimal depth for each variable is indicated by the black vertical line and labeled numerically. Interpretation: `Class` is the most important variable in this Random Forest, as it frequently appears at the root or near the root of the trees. `Product` and `DateFulfilled` are moderately important and often used early in splits. Lastly, `qtyOrdered` has the least importance in this model, as it is used at deeper levels in the trees.
+
+```{r Tree Depth and Splits}
+library(randomForestExplainer)
+# Extract feature importance splits
+importance_split <- min_depth_distribution(rf_model_churn)
+plot_min_depth_distribution(importance_split)
+
+```
+Below, let's look at the ROC Curve (Receiver Operating Characteristic Curve) for this classification model. The X-axis displays specificity or false positive rate which measures how often the model incorrectly predicts positive class [churn=1] when class is truly negative [churn=0]. The Y-axis displays sensitivity or true positive rate which measures how well the model predicts positive class [churn=1] when class is truly positive [churn=1]. The curve in blue plots predicted probabilities. The diagonal line represents no predictive power while any curve above it indicates the model is better at predicting. The area under the curve (AUC) measures overall ability (range 0 to 1) to distinguish between classes; 1 being perfect and <0.5 being worse than random guessing. Interpretation: The blue curve lies above diagonal line indicating the model performs better than random guessing. However, the distance between the curve and line is not large suggesting moderate predictive power. The curve approaches top-left corner but doesn't get close at all indicating the model may not be optimal at identifying true positives, churn [1] while avoiding false positives, churn [1]. The curve appears to be in the range 0.7–0.8, indicating a useful model but not reliable.
+
+```{r ROC Curve}
+library(pROC)
+
+# Predicted probabilities
+rf_prob <- predict(rf_model_churn, testData, type = "prob")[, 2]
+
+# Generate ROC curve
+roc_curve <- roc(testData$churned, rf_prob)
+plot(roc_curve, main = "ROC Curve for Random Forest", col = "blue", lwd = 2)
+
+```
+The model output shows that the OOB estimate of error rate is 0.05%. Let's look at the plot below that depicts how the OOB error rate changes with the number of trees in the forest. The black line represents the overall OOB error rate for our random forest model. It looks like the error rate continues to drop as the number of trees increases and stabilizes after around 50–100 trees and adding more trees beyond this point does not significantly improve the model's performance, suggesting that the random forest has converged. The overall OOB error rate is very low, which suggests that the model is performing well on the training data and we could reduce the number of trees to 100 and save computation time without losing predictive power.
+
+```{r}
+# Extract the OOB Error Rate
+oob_error_rate <- rf_model_churn$err.rate[nrow(rf_model_churn$err.rate), "OOB"]
+
+# Print the OOB Error Rate
+print(paste("OOB Error Rate:", round(oob_error_rate * 100, 4), "%"))
+
+# # Plot the OOB error rate
+plot(rf_model_churn, main = "OOB Error Rate vs Number of Trees")
+
+```
+
+The chart below displays feature importance for the predictors used in our model. `Class` feature appears to dominate prediction, which we know has a strong, direct relationship with churn. 
+
+```{r, echo=FALSE}
+library(randomForest)
+library(ggplot2)
+
+# Extract variable importance
+importance_data <- as.data.frame(importance(rf_model_churn))
+importance_data$Feature <- rownames(importance_data)
+
+ggplot(importance_data, aes(x = reorder(Feature, MeanDecreaseAccuracy), y = MeanDecreaseAccuracy)) +
+  geom_segment(aes(xend = Feature, yend = 0), color = "cornflowerblue", size = 1) +
+  geom_point(color = "darkblue", size = 4) +
+  coord_flip() +
+  labs(title = "Lollipop Chart Showing Feature Importance for Churn Prediction",
+       x = "Feature",
+       y = "Mean Decrease in Accuracy") +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.title.position = "plot", # Positions title at top with extra space
+    panel.background = element_rect(fill = "aliceblue", color = NA),
+    plot.background = element_rect(fill = "lavender", color = NA),
+    panel.grid.major = element_line(color = "lightgray", size = 0.3),
+    panel.grid.minor = element_blank(),
+    plot.margin = unit(c(1, 1, 1, 1), "cm"))
+
+# Make predictions on the test set
+predictions <- predict(rf_model_churn, newdata = testData)
+# Create a confusion matrix
+confusion_matrix <- confusionMatrix(predictions, testData$churned)
+#print(confusion_matrix)
+```
+
+The confusion matrix heatmap visually helps indicate consistency with our finding from the ROC Curve plot. 
+
+```{r Heatmap of Confusion Matrix}
+library(ggplot2)
+library(reshape2)
+
+# Convert confusion matrix to a heatmap-friendly format
+conf_matrix <- as.table(rf_model_churn$confusion)
+conf_df <- as.data.frame(as.table(conf_matrix))
+
+# Plot heatmap
+ggplot(conf_df, aes(x = Var1, y = Var2, fill = Freq)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "blue") +
+  labs(title = "Confusion Matrix Heatmap", x = "Actual", y = "Predicted") +
+  theme_minimal()
+
+```
+
+
+**Table 4 - Below are the numbers from the Confusion Matrix (Customer Churn Model)**
+
+The confusion matrix provides metrics such as **accuracy, sensitivity, and specificity**, which are key for interpreting model performance in predicting churn.
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:4px 3px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:4px 3px;word-break:normal;}
+.tg tr {height: 5px;}
+.tg .tg-2b7s{text-align:right;vertical-align:bottom}
+.tg .tg-dne1{background-color:#c0c0c0;text-align:left;vertical-align:bottom}
+.tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-1v3t{background-color:#ffffc7;font-weight:bold;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-8d8j{text-align:center;vertical-align:bottom}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-j6zm"><span style="font-weight:bold">Table4:</span></th>
+    <th class="tg-1v3t" colspan="2"><span style="font-weight:bold">Confusion Matrix and Statistics</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"></td>
+    <td class="tg-8d8j" colspan="2">Reference</td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Prediction </span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">4045</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">135</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1101</span></td>
+    <td class="tg-2b7s"><span style="font-weight:normal">1001</span></td>
+  </tr>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Accuracy</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8032</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">95% CI</td>
+    <td class="tg-2b7s">(0.7932, 0.813)</td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">No Information Rate</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8192</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">P-Value [Acc &gt; NIR]</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.9994</span></td>
+  </tr>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Kappa</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.5012</span></td>
+  </tr>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Mcnemar's Test P-Value</td>
+    <td class="tg-2b7s">&lt;2e-16</td>
+  </tr>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Sensitivity</td>
+    <td class="tg-2b7s">0.786</td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Specificity</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8812</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Pos Pred Value</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.9677</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Neg Pred Value</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.4762</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Prevalence</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8192</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Detection Rate</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.6439</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Detection Prevalence</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.6654</span></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2">Balanced Accuracy</td>
+    <td class="tg-2b7s"><span style="font-weight:normal">0.8336</span></td>
+  </tr>
+  <tr>
+    <td class="tg-dne1" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="tg-2b7s" colspan="2"><span style="font-weight:normal">'Positive' Class</span></td>
+    <td class="tg-2b7s">0</td>
+  </tr>
+</tbody></table>
+
+And lastly, let's look at the Actual versus Predicted results using the scatter plot below. The dense clusters in the top-right and bottom-left quadrants indicates strong classification performance for both 0 and 1 classes. The top-left and bottom-right quadrants indicate some misclassified points showing that the model made some errors potentially from an imbalance in the data or that our model poorly generalizes one of the classes.
+
+```{r Actual vs Predicted Scatter Plot}
+
+predicted_classes <- predict(rf_model_churn, testData)
+ggplot(testData, aes(x = churned, y = predicted_classes)) +
+  geom_jitter(width = 0.2, height = 0.2, alpha = 0.5) +
+  labs(title = "Actual vs Predicted Classes", x = "Actual", y = "Predicted") +
+  theme_minimal()+
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)  # Inner plot panel border
+  )
+
+```
+
+##### Customer Churn Model Evaluation
+
+The Model was evaluated using the statistics provided in the confusion matrix. The accuracy on the final model proved to be 80.3% but it was achieved only after several tweaks to the model for example correcting the date format and re-grouping. Originally only a 51% accuracy was seen which meant the model correctly classified about 51% of the cases. However, 80.3% accuracy was eventually achieved to predict churn. The No Information Rate (NIR) was 0.8192, which meant that always predicting majority class (0) would result in 81.92% accuracy. Kappa of 0.5012 indicates moderate agreement between predicted and actual classifications beyond chance, hence did fairly in differenciating classes. Sensitivity (for class 0) of 0.7860 indicated the model correctly identifies 78.6% of the actual 0 cases. This was fairly strong but could still benefit from improvement.
+Specificity (for class 1) of 0.8812 suggests the model correctly identifies 88.12% of the actual 1 cases, indicating strong performance in identifying class 1 cases. Positive Predictive Value (PPV for class 0) of 0.9677 suggests that when the model predicts 0, it is correct 96.77% of the time. This indicates a high precision for class 0. Negative Predictive Value (NPV for class 1) of 0.4762, suggests that when the model predicts 1, it’s correct only 47.62% of the time. This lower NPV suggests that the model might still be missing some 1 cases. The P-value (<2e-16) for Mcnemar’s Test indicates a statistically significant difference between the error rates for 0 and 1 predictions. This could mean that the model still struggles slightly with misclassification between classes. Over all, the model has a good balance (0.8336) between identifying both classes, though it is better at predicting class 0. 
+
+#### 2nd Use Case
+
+**Inventory Demand Forecast**: A Random Forest Regression model was created to forecast inventory using some of the features from the SSI Sales dataset. The goal of *Inventory Demand Forecast* is to predict quantity that will be ordered for each product in future periods. Certain Classes were omitted from the data that were irrelevant as well as records with missing Substrate. Additional variables were calculated to pass to the model such as day, week and month of the year. The data was partitioned as prior: 80% of the data was used to train the model and 20% was used to test. Feature importance and proximity measure were set within the model for further analysis and the model was evaluated using the root mean square error rate.
+
+The `qtyOrdered` variable was modeled using the randomForest() function in R, with the following predictors:
+
+  **•	Product:** The Product being sold.
+  
+  **•	OPCO:** Distributor used by SSI for the sale in question.
+  
+  **•	Substrate:** Material type of product.
+  
+  **•	Month:** Month in which the sale occured (Derived variable).
+  
+  **•	Year:** Year in which the sale occured (Derived variable).
+  
+  **•	UnitPrice:** Product price on the sale.
+
+```{r, echo=FALSE}
+# Load necessary libraries and Preprocess Data
+library(randomForest)
+library(dplyr)
+library(tidyverse)
+library(knitr)
+SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet2.csv') 
+
+# List of Classes not relevant 
+exclude_class <- c("None", "WarehouseG", "WarehouseJ", "WarehouseS", "Prospective", "Click & Chew", "Sporteux")
+# List of records to exclude for shipping
+exclude_products <- c("OUTBOUND SHIPPING", "Outbound Shipping", "Shipping Charge", "SHIPPING CHARGE") 
+
+# Filter out returns/credits (Price <= 0) and Classes not relevant and Products not relevant #qtyOrdered > 9, 
+SaleData1 <- SaleData %>%
+  filter(UnitPrice > 0, TotalPrice > 0, !Product %in% exclude_products, !Class %in% exclude_class)
+
+# Convert date columns to Date type
+SaleData1$RequestedDeliveryDate <- as.Date(SaleData1$RequestedDeliveryDate, format="%m/%d/%Y")
+
+# Look for missing values
+# colSums(is.na(SaleData1))
+
+# Remove rows with missing values # 465
+SaleData1 <- SaleData1 %>% drop_na(Substrate) 
+SaleData1 <- SaleData1 %>% drop_na(RequestedDeliveryDate) 
+
+# Handle missing values (e.g., using mean or median imputation)
+# SaleData1 <- SaleData1 %>%
+#   mutate_if(is.numeric, ~ifelse(is.na(.), mean(., na.rm = TRUE), .))
+
+# Add additional features to aid in demand predicton
+# Add date-related features
+SaleData1 <- SaleData1 %>%
+  mutate(Month = as.numeric(format(RequestedDeliveryDate, "%m")),
+         Year = as.numeric(format(RequestedDeliveryDate, "%Y")),
+         DayOfWeek = as.numeric(format(RequestedDeliveryDate, "%u"))) # Weekday (1-7)
+```
+
+```{r, echo=FALSE}
+library(caret)
+library(randomForest)
+# Split data 
+set.seed(960)
+trainIndex <- createDataPartition(SaleData1$qtyOrdered, p = 0.8, list = FALSE)
+trainData <- SaleData1[trainIndex, ]
+testData <- SaleData1[-trainIndex, ]
+
+# Train the random forest model to predict qtyOrdered
+rf_inventory <- randomForest(qtyOrdered ~ Product + OPCO + Substrate + Month + Year +
+                             UnitPrice,
+                             data = trainData,
+                             ntree = 100,
+                             mtry = 3,
+                             importance = TRUE,
+                             na.action = na.exclude)
+
+# Evaluate the model on test data using MSE and RMSE to understand how well it predicts future demand.
+predictions <- predict(rf_inventory, newdata = testData)
+residuals <- testData$qtyOrdered - predictions
+
+# Calculate RMSE
+rmse <- sqrt(mean(residuals^2))
+# Plot feature importance
+importance(rf_inventory)
+#varImpPlot(rf_inventory)
+```
+Just like in the first use case, let's investigate the feature importance details for this model. OPCO at 30.1% has the highest percent increase in mean squared error (%IncMSE) suggesting the model relies heavily on OPCO for predictions and indicating strong influence on `qtyOrdered`. Month at 29.36% and Product at 27.14% also indicate high importance on model's performance. Looking at the Increase in Node Purity, Product has the highest IncNodePurity (100,229,054) suggesting it is most significant for reducing variability in `qtyOrdered`. `OPCO` (71,703,082) and `UnitPrice` (58,979,972) follow right behind. 
+
+Further, let's explore feature interactions for this model. This calculates of pairwise interactions for all features based on their minimal depth. There are 36 total interactions calculated, with 30 most frequent showing below. 
+- X-axis displays pairs of features involved in interactions
+- Y-axis represents average depth of the splits in the forest where these features occur. Lower values indicate interaction is closer to the root of the trees, therefore more important.
+- Blue bars: Taller bars indicate less critical interaction. Shorter bars indicate more critical interactions.
+- Black dots with error bars: The dots represent mean minimal depth while the bars show variability.
+- Red line is the minimum depth threshold.
+- Color gradient indicates frequency of interaction. Darker color indicates the interaction is observed more frequently. 
+
+
+```{r Feature Interaction, eval=FALSE}
+library(randomForestExplainer)
+interactions <- min_depth_interactions(rf_inventory)
+# Visualize feature interactions
+plot_min_depth_interactions(interactions)
+plot_min_depth_interactions(min_depth_interactions(rf_inventory))
+
+```
+<img src="/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/FeatureInteractions.png" alt="Model 1" width="800">
+
+**Interpretation**: Feature interactions `OPCO:Month`, `Product:Month`, and `Substrate:Month` have a low mean minimal depth, making them more predictive and critical to the model. This suggests that the `Month` (likely a seasonal factor) plays a strong role in how `OPCO` and `Product` influence the target variable, `qtyOrdered`. `Year:Year` and `Substrate:Substrate` are darker than `OPCO:Month`, indicating that these interactions are frequently evaluated but are less critical since they appear at higher depths (further from the root of the trees). Lastly, `OPCO:Product` is one of the most critical for this model. It's low minimal depth, high frequency and low variability.
+
+Next, let's look at how close the OOB predictions are to the actual values. Residuals should be symmetrically distributed around the horizontal line. Noticeably, the residuals fan out as the predicted quantity increases, showing heteroscedasticity. The model's error is non-constant but increases as predictions become larger. For smaller predicted values, residuals are tightly clustered, indicating better model accuracy. Interpretation: The model performs reasonably well for lower predictions. However, errors grow as the predicted quantity increases, indicating that the model struggles with high values.
+
+```{r}
+# OOB residuals
+oob_residuals <- trainData$qtyOrdered - rf_inventory$predicted
+
+# Plot OOB residuals
+ggplot(data = trainData, aes(x = rf_inventory$predicted, y = oob_residuals)) +
+  geom_point(alpha = 0.5, color = "brown3") +
+  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
+  labs(title = "OOB Residual Plot",
+       x = "Predicted Quantity Ordered (OOB)",
+       y = "Residuals") +
+  theme_minimal()
+```
+
+Finally, let's compare the distribution of actual and predicted values. The red dashed line represents line of perfect predictions where Predicted Quantity Ordered equals Actual Quantity Ordered. Right away, we can tell it is far from perfect. The blue scatter points is the relationship between actual and predicted values. Since, there are so many farther from the red line, we can tell Predictions deviate from true values indicating potential errors. The high density of points in the lower range suggests majority of data involves smaller order quantities and these align closely with the red line. For higher quantities (e.g. >300), the scatter points are wider, indicating increased variability or errors in the predictions for larger orders. This is consistent with the OOB Residual plot. Subsequently, the RMSE calculated was 106.49 which is much higher than we would like for model accuracy.
+
+```{r}
+# Predict on test data
+predicted <- predict(rf_inventory, testData)
+
+# Create scatter plot
+library(ggplot2)
+ggplot(data = testData, aes(x = qtyOrdered, y = predicted)) +
+  geom_point(color = "blue", alpha = 0.5) +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(title = "Actual vs Predicted Quantity Ordered",
+       x = "Actual Quantity Ordered",
+       y = "Predicted Quantity Ordered") +
+  theme_minimal()
+
+```
+
+ 
+```{r, echo=FALSE}
+# Evaluate the model on test data using MSE and RMSE to understand how well it predicts future demand.
+predictions <- predict(rf_inventory, newdata = testData)
+
+# any(is.na(predictions)) # TRUE
+# sum(is.na(predictions)) # 1
+
+# Calculate residuals
+residuals <- testData$qtyOrdered - predictions
+
+# Calculate RMSE
+rmse <- sqrt(mean(residuals^2))
+
+```
+Next, let's apply some strategies to see if we can lower our RMSE and improve model accuracy. First we will apply grouped lagging of the `qtyOrdered` column. We will sort the data first by OPCO, then by Product, and finally by RequestedDeliveryDate. The rows will be in chronological order based on the delivery date. Then we group by OPCO and Product. We will create a new variable called `Lag_qtyOrdered` using the lag() function which will contain the qtyOrdered from the previous order for the same OPCO and Product.
+
+```{r Second Model using Aggregating of Features, eval=FALSE}
+# Create grouping - qtyOrdered feature by grouping with both Class and Product
+trainData <- trainData %>%
+  arrange(OPCO, Product, RequestedDeliveryDate) %>%
+  group_by(OPCO, Product) %>%
+  mutate(Lag_qtyOrdered = lag(qtyOrdered, order_by = RequestedDeliveryDate)) %>%
+  ungroup()
+
+# Handle NA values in Lag_qtyOrdered 
+trainData <- trainData %>%
+  mutate(Lag_qtyOrdered = ifelse(is.na(Lag_qtyOrdered), 0, Lag_qtyOrdered))
+
+# Ensure testData has the Lag_qtyOrdered feature
+testData <- testData %>%
+  arrange(OPCO, Product, RequestedDeliveryDate) %>%
+  group_by(OPCO, Product) %>%
+  mutate(Lag_qtyOrdered = lag(qtyOrdered, order_by = RequestedDeliveryDate)) %>%
+  ungroup() %>%
+  mutate(Lag_qtyOrdered = ifelse(is.na(Lag_qtyOrdered), 0, Lag_qtyOrdered))
+
+testData <- testData %>%
+  mutate(Lag_qtyOrdered = ifelse(is.na(Lag_qtyOrdered), 0, Lag_qtyOrdered))
+
+
+# Run the randomForest model with the new feature
+rf_inventory_aggr <- randomForest(qtyOrdered ~ Product + OPCO + Substrate + Month + Year +
+                             UnitPrice + Lag_qtyOrdered,
+                             data = trainData,
+                             ntree = 100,
+                             mtry = 3,
+                             importance = TRUE,
+                             na.action = na.exclude)
+
+# Predict on test data, Calculate residuals, and Calculate RMSE
+predictions_aggr <- predict(rf_inventory_aggr, newdata = testData)
+
+residuals <- testData$qtyOrdered - predictions_aggr
+rmse_aggr <- sqrt(mean(residuals^2)) # 87.76
+print(rmse_aggr)
+```
+RMSE(w/GroupedLagging): 87.76
+
+RMSE certainly dropped compared to the original regression model. However, let's see if we can continue to get a better result. Next, we will use the grouped lagging feature created in prior step, and apply K-fold Validation into the Random Forest model.
+
+```{r Third Model using K-fold Cross Validation, eval=FALSE}
+# RMSE has improved but is still not at a satisfactory level
+library(caret)
+
+# Set up cross-validation
+train_control <- trainControl(method = "cv", number = 5)
+any(is.na(train_control))
+sum(is.na(train_control))
+train_control <- na.omit(train_control)
+
+# Train model with cross-validation
+rf_model_cv <- train(qtyOrdered ~ Product + OPCO + Substrate + Month + Year +
+                     UnitPrice + Lag_qtyOrdered,
+                     data = trainData,
+                     method = "rf",
+                     trControl = train_control,
+                     tuneGrid = expand.grid(mtry = c(2, 3, 4)), # adjust as needed
+                     ntree = 100)
+
+print(rf_model_cv)
+```
+RMSE(w/K-fold): 90.09
+
+With the K-fold Cross-Validation, RMSE actually increased. Not the direction we want to go. We could certainly continue tuning our Random Forest model. Let's instead test the XGBoost algorithm below using the *xgboost* package in RStudio.
+
+```{r Fourth Model - XGBoost, eval=FALSE}
+install.packages("xgboost")
+library(xgboost)
+
+# One-hot encode categorical variables
+# Add a dummy identifier to split them after encoding
+trainData$dataset_type <- "train"
+testData$dataset_type <- "test"
+full_data <- rbind(trainData, testData)
+
+# One-hot encode on the combined data
+full_matrix <- model.matrix(~ Product + OPCO + Substrate + Month + Year +
+                            UnitPrice + Lag_qtyOrdered - 1, 
+                            data = full_data)
+
+# Split back to train and test
+train_matrix <- full_matrix[full_data$dataset_type == "train", ]
+test_matrix <- full_matrix[full_data$dataset_type == "test", ]
+train_target <- trainData$qtyOrdered
+
+dtrain <- xgb.DMatrix(data = train_matrix, label = train_target)
+dtest <- xgb.DMatrix(data = test_matrix)
+
+# Define parameters as before
+params <- list(
+  objective = "reg:squarederror",
+  eval_metric = "rmse",
+  max_depth = 6,
+  eta = 0.1,
+  gamma = 0,
+  colsample_bytree = 0.8,
+  min_child_weight = 1
+)
+
+# Train the model
+xgb_model <- xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 100
+)
+
+# Make predictions on test data and Calculate RMSE
+predictions <- predict(xgb_model, dtest)
+rmse_xb <- sqrt(mean((testData$qtyOrdered - predictions)^2))
+
+```
+
+RMSE(xgboost): 64.03
+
+
+The XGBoost significantly helped lower our RMSE. We will perform one last tuning of our model and use a cumulative sum of qtyOrdered (grouped by OPCO and Product) within the XGBoost model.
+
+```{r Fifth Model - XGBoost w/addition of Cumulative Sum, eval=FALSE}
+library(xgboost)
+library(dplyr)
+library(Matrix)
+# Create Cumulative Sum feature
+SaleData1 <- SaleData1 %>%
+  arrange(OPCO, Product, RequestedDeliveryDate) %>%  # Ensure sorted order
+  group_by(OPCO, Product) %>%
+  mutate(CumQtyOrdered = cumsum(qtyOrdered))  # Cumulative sum of qtyOrdered
+
+# One-hot encoding
+dummies <- dummyVars(" ~ OPCO + Product + Substrate", data = SaleData1)
+encoded_data <- predict(dummies, newdata = SaleData1)
+
+# Combine with other features
+model_data <- cbind(encoded_data, SaleData1[, c("CumQtyOrdered", "UnitPrice")])
+
+# Split data 
+set.seed(960)
+trainIndex <- createDataPartition(SaleData1$CumQtyOrdered, p = 0.8, list = FALSE)
+trainData <- model_data[trainIndex, ]
+testData <- model_data[-trainIndex, ]
+
+# Create DMatrix
+dtrain <- xgb.DMatrix(data = as.matrix(trainData[, -1]), label = trainData$CumQtyOrdered)
+dtest <- xgb.DMatrix(data = as.matrix(testData[, -1]), label = testData$CumQtyOrdered)
+
+# Specify params and train model
+params <- list(
+  objective = "reg:squarederror", # Regression problem
+  eval_metric = "rmse",          # Root Mean Square Error
+  booster = "gbtree",
+  eta = 0.1,                     # Learning rate
+  max_depth = 6,                 # Tree depth
+  subsample = 0.8,               # Row sampling
+  colsample_bytree = 0.8         # Feature sampling
+)
+
+# Train the model
+xgb_model_cv <- xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 100,                 # Number of boosting iterations
+  watchlist = list(train = dtrain, test = dtest),
+  early_stopping_rounds = 10     # Stop if no improvement
+)
+
+predictions <- predict(xgb_model_cv, dtest)
+
+# Compare predictions with actual values
+results <- data.frame(
+  Actual = testData$CumQtyOrdered,
+  Predicted = predictions
+)
+
+# install.packages("Metrics")
+library(Metrics)
+
+# Calculate RMSE
+rmse_xbc <- rmse(results$Actual, results$Predicted)
+print(rmse_xbc)
+```
+RMSE(xgboost w/cumsum): 30.18
+
+```{r, eval=FALSE}
+
+ggplot(results, aes(x = Actual, y = Predicted)) +
+  geom_point(color = "blue", alpha = 0.6) +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(
+    title = "Actual vs. Predicted Values",
+    x = "Actual CumQtyOrdered",
+    y = "Predicted CumQtyOrdered"
+  ) +
+  theme_minimal()
+```
+<img src="/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/xgBoost_cumsum.png" alt="Model 1" width="800">
+
+The XGBoost with the addition of cumulative sum of qtyOrdered proved to generate the lowest RMSE of all the regression models run. As noticieable from the Actual vs Predicted plot above, a high level of accuracy is achieved. The predicted values align nicely with the actual.
+
+
+#### Inventory Forecast Model Evaluation
+
+On the initial model, a RMSE (Root Mean Square Error) of 106.49 was calculated. That meant that on average, the predicted quantity deviated from the actual quantity by about 106. With the target variable `qtyOrdered` ranging from 1 to 1262, it was a clear indication of some degree of prediction error. The RMSE suggested room for improvement in the model. Many model modifications were made to improve RMSE, however an improvement in prediction was not achieved. Three further strategies were tested to improve the model. 
+
+ - *Grouped Lagging features*: A grouping by `Product` and `OPCO` was created to capture patterns specific to each product for each distributor This grouping provided more granular values and improved the model's performance. RMSE calculated dropped to 87.76.
+ 
+ - *K-Fold Cross-Validation*: Further tuning was performed using 5-Fold Cross-Validation to get more robust RMSE estimate. This model was tested using multiple values for the hyperparameter *mtry* (2, 3 & 4). Even though smaller *mtry* increases randomness and diversity in the trees, the final value used for the model was *mtry* = 4 and RMSE calculated was 90.09.
+ 
+ - *XGBoost*: XGBoost package in R proved to capture complex patterns of this data better than the base Random Forest function. XGBoost required data to be in a numeric matrix format and it didn't handle categorical variables directly. A RMSE of 64.03 was achieved using this gradient boosting method. This lower RMSE indicates that there is some variability but still reasonable predictive accuracy for larger quantities. However, it still appears to be high since the data has a lot of lower values.
+
+- *XGBoost w/cumsum*: One final model using a cumulative sum of quantity ordered grouped by OPCO and Product was run which provided the lowest RMSE of 30.18. 
+
+The results and comparison are displayed in *Table 5* below for reference.
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-jz24{background-color:#CFE2F3;color:#00F;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-nozj{background-color:#CFE2F3;color:#980000;font-weight:bold;text-align:center;vertical-align:bottom}
+.tg .tg-ekl7{background-color:#343434;text-align:left;vertical-align:bottom}
+.tg .tg-7zrl{text-align:left;vertical-align:bottom}
+.tg .tg-8d8j{text-align:center;vertical-align:bottom}
+</style>
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-nozj"><span style="font-weight:bold;color:#980000;background-color:#CFE2F3">Model</span></th>
+    <th class="tg-jz24"><span style="font-weight:bold;color:#00F;background-color:#CFE2F3">RMSE</span></th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-ekl7" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Base Random Forest Regression Model</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">106.49</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with Grouped Lagging</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">87.76</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=2)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">106.84</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=3)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">97.47</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">Random Forest with 5-Fold Cross Validation (mtry=4)</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">90.09</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">XGBoost</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">64.03</span></td>
+  </tr>
+  <tr>
+    <td class="tg-7zrl"><span style="font-weight:normal">XGBoost with Cumulative Sum</span></td>
+    <td class="tg-8d8j"><span style="font-weight:normal">30.18</span></td>
+  </tr>
+</tbody></table>
 
 ### Conclusion
 
--   Summarize your key findings.
+From reviewing several pieces of published literature, it is clear that the Random Forest algorithm is widely used. It has demonstrated high accuracy and adaptability across a variety of tasks. It's been effective in making generalizations in high-dimensional problems; real-world data which is noisy and incomplete. It is unlike other algorithms in that we have the benefit of averaging predictions over hundreds of trees. Mean Decrease Accuracy and Mean Decrease Gini shed light on influential variables that are useful for further research. Random Forest's widespread use stems from it's versatility, robustness and strong performance with minimal tuning. However, despite these strengths, there is a gap between it's theoretical understanding and the algorithm's practical performance. The algorithm is difficult to analyze and its basic mathematical properties are still not well understood. [@Biau2016-so] Random Forests lack an easily interpretable framework for understanding how certain variables impact outcomes. All in all, while certain theoretical aspects remain unexplored, Random Forests will continue to be widely applied due to their performance and flexibility with complex datasets. Further research on improving theoretical understanding as well as developing methods to increase interpretability, will certainly broaden the scope and application of Random Forests. 
 
--   Discuss the implications of your results.
 
-## References
+## APPENDIX
+
+SQL used for data extraction – Actual names have been masked in the interest of a NDA. [Names have been replaced by a, b, c, etc]
+
+```
+-- -----------------------------
+-- Sales Order Detail
+-- ----------------------------
+
+with SALES as
+         (
+	Select -- distinct q.name 
+		-- count(so.num) -- 157010
+		c.name as OPCO,
+		so.num as SalesOrderID,
+		so.CustomerPO,
+		s.productNum as Product,
+		REPLACE(s.Description,',',' ') as Description,
+		cast(s.dateScheduledFulfillment as Date) as RequestedDeliveryDate,
+		cast(s.dateLastFulfillment as Date) as DateFulfilled,
+		s.qtyOrdered,
+		s.qtyFulfilled,
+		s.unitPrice,
+		s.TotalPrice,
+		q.name as Class_orig,q.name as OrigClass,
+		case 
+			 when q.name = 'a' then 'Frosty Delight'
+			 when q.name = 'b' then 'DineLink International'
+			 when q.name = 'c' then 'PlatePioneers'
+			 when q.name = 'd' then 'Herbivore Haven'
+			 when q.name = 'e' then 'Mixtic Fusion'
+			 when (q.name = 'f' or q.name = 'ff') then 'Golder Era'
+			 when q.name = 'g' then 'Cibo Cafe'
+			 when (q.name = 'h' or q.name = 'hh') then 'Hog Heaven'
+			 when q.name = 'i' then 'Field of Dreams'
+			 when q.name = 'j' then 'Bocca'
+			 when (q.name = 'k' or q.name = 'kk') then 'Philly Bite'
+			 when (q.name = 'l' or q.name = 'll') then 'Naked Eats'
+			 when q.name = 'm' then 'Golly'
+			 when q.name = 'n' then 'Noble Sips'
+			 when q.name = 'o' then 'Smoked & Spiced'
+			 when q.name = 'p' then 'Trendy'
+			 when q.name = 'q' then 'Ballers'
+			 when q.name = 'r' then 'Luby Grille'
+			 when (q.name = 's' or q.name = 'ss') then 'Lord of the Loaf'
+			 when q.name = 'sss' then 'Click & Chew'
+			 when q.name = 't' then 'Rum & Roll'
+			 when q.name = 'u' then 'Bird Boss'
+			 when q.name = 'v' then 'Bowl Bliss'
+			 when q.name = 'w' then 'Galaxy Grill'
+			 when q.name = 'x' then 'Restaurant Supply'
+			 when q.name = 'y' then 'Meatball Manor'
+			 when q.name = 'z' then 'MediMirth'
+			 when q.name = 'aa' then 'Smoothie Island'
+			 when (q.name = 'bb' or q.name = 'bbb') then 'Patty Wagon'
+			 when q.name = 'cc' then 'Bagelicious'
+			 when q.name = 'dd' then 'Restaurant Supply'
+			 when q.name = 'ee' then 'Moonbeam Grill'
+			 when q.name = 'gg' then 'Restaurant Supply'
+			 when q.name = 'ii' then 'Boot Boot'
+			 when q.name = 'jj' then 'National City'
+			 when q.name = 'mm' then 'Pizza Smarty'
+			 when q.name = 'nn' then 'Sporteux'
+			 when (q.name = 'oo' or q.name = 'ooo') then 'Berl Company'
+			 when q.name = '210 - Warehouse (Jasper)' then 'WarehouseJ'
+			 when q.name = '220 - Warehouse (Graham)' then 'WarehouseG'
+			 when q.name = '200 - Warehouse (St. Pete)' then 'WarehouseS'
+			 when q.name = '500 - Supply Chain Management' then 'None'
+			 when q.name = 'pp' then 'Halls of White'
+		else q.name end as Class,
+		so.shipToName as ShipToName,
+		CONCAT(REPLACE(so.shipToAddress,',',' '),', ', IFNULL(so.shipToCity,''),', ',IFNULL(stc.code,'')) as ShipToAddress,
+		 sts.name as SalesOrderStatus,
+		 stsi.name as SalesItemStatus
+		from so so
+		 left join soitem s
+			on so.id = s.soid
+		 left join customer c
+			on so.customerID = c.id
+		left join qbClass q
+		   on q.id = s.qbClassId
+		left join product p
+			on s.productId = p.id
+		left join stateconst st
+			on st.id = so.billToStateId
+		left join stateconst stc
+			on stc.id = so.shipToStateId
+		left join sostatus sts
+			on so.statusId = sts.id
+		left join soitemstatus stsi
+			on s.statusId = stsi.id
+		where s.dateLastFulfillment BETWEEN (curdate() - interval 48 month) and (curdate() + interval 1 month) -- timeframe
+			and so.num not like 'PPP%'
+			and so.num not like 'CCC%'
+			and sts.name not in ('In Progress')) -- filter out any open transactions 
+-- 		Order by dateFulfilled desc)
+		
+	,PART as
+         (select 
+         	p.num as product,p.activeFlag,pt.num, REPLACE(LOWER(pt.customFields -> '$."18".value'), '"', '') AS Substrate
+         from product p 
+		 left join part pt on pt.id = p.partid)
+-- 			where activeFlag=1;
+
+select
+		s.OPCO,
+		s.SalesOrderID,
+		s.CustomerPO,
+		s.Product,
+		s.Description,
+		p.Substrate,
+		s.RequestedDeliveryDate,
+		s.DateFulfilled,
+		s.qtyOrdered,
+		s.qtyFulfilled as QuantityFulfilled,
+		s.unitPrice as UnitPrice,
+		s.TotalPrice,
+		s.Class,
+		s.ShipToName,
+		s.ShipToAddress,
+		s.SalesOrderStatus,
+		s.SalesItemStatus
+from SALES s
+left join PART p on s.product = p.product 
+order by s.DateFulfilled desc;
+```
