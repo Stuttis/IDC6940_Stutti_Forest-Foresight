@@ -1492,7 +1492,7 @@ predictions_aggr <- predict(rf_inventory_aggr, newdata = testData)
 
 residuals <- testData$qtyOrdered - predictions_aggr
 rmse_aggr <- sqrt(mean(residuals^2)) # 87.76
-print(rmse_aggr)
+
 ```
 RMSE(w/GroupedLagging): 87.76
 
