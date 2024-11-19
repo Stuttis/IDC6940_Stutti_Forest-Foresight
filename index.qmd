@@ -92,11 +92,9 @@ rpart.plot(tree_model, main = "Decision Tree Visualization")
 
 3. **Feature Importance:** RF algorithm ranks features based on their contribution to accuracy. Random forests can calculate feature importance by analyzing how often a feature is used to split data across all trees as well as how well it improves the purity of tree nodes. There are two methods used for feature importance calculation. Random forests can be used to rank the importance of variables in regression or classification problems via two measures of significance:  The second, referred to as 
 
-  a. `Mean Decrease Impurity` (MDI; see Breiman 2003a), or Gini Importance, is based on the total             decrease in node impurity from splitting on the variable, averaged over all trees. This method           measures a feature’s contribution to reducing the Gini Impurity (Classification) or reducing the         Mean Squared Error (Regression) across the forest.
+    a. `Mean Decrease Impurity` (MDI; see Breiman 2003a), or Gini Importance, is based on         the total decrease in node impurity from splitting on the variable, averaged over         all trees. This method measures a feature’s contribution to reducing the Gini             Impurity (Classification) or reducing the Mean Squared Error (Regression) across          the forest.
       
-  b. `Mean Decrease Accuracy` (MDA), or Permutation Importance, measures decrease in the model’s              accuracy. A feature leading to a significant drop in accuracy is considered important. For example,
-     Product and Client may prove the most important features for predicting Total Price but
-     Order Status and Delivery Date may be less important. This concept was first defined by Breiman          (2001) also, and stems from the idea that if the variable is not important, then rearranging its         values should not degrade prediction accuracy. [@Biau2016-so] 
+    b. `Mean Decrease Accuracy` (MDA), or Permutation Importance, measures decrease in the         model’s accuracy. A feature leading to a significant drop in accuracy is                  considered important. For example, Product and Client may prove the most important         features for predicting Total Price but Order Status and Delivery Date may be less         important. This concept was first defined by Breiman(2001) also, and stems from           the idea that if the variable is not important, then rearranging its values should         not degrade prediction accuracy. [@Biau2016-so] 
 
 4.	**Out-of-Bag (OOB) Error Estimation:** This provides an internal method of validating the model’s accuracy without needed a separate test set. Since each tree is trained on a bootstrap sample, some data points are left out, called Out-of-Bag samples. These OOB samples are used to get unbiased estimates of model accuracy without the need for a separate validation set. For example, if record 100 of our data was not used to train Tree 1, Tree 1 can still predict Total Price for that record, and we can compare the prediction to the actual Total Price.
 
@@ -1072,7 +1070,7 @@ importance_split <- min_depth_distribution(rf_model_churn)
 plot_min_depth_distribution(importance_split)
 
 ```
-Below, let's look at the ROC Curve (Receiver Operating Characteristic Curve) for this classification model. The X-axis displays specificity or false positive rate which measures how often the model incorrectly predicts positive class [churn=1] when class is truly negative [churn=0]. The Y-axis displays sensitivity or true positive rate which measures how well the model predicts positive class [churn=1] when class is truly positive [churn=1]. The curve in blue plots predicted probabilities. The diagonal line represents no predictive power while any curve above it indicates the model is better at predicting. The area under the curve (AUC) measures overall ability (range 0 to 1) to distinguish between classes; 1 being perfect and <0.5 being worse than random guessing. Interpretation: The blue curve lies above diagonal line indicating the model performs better than random guessing. However, the distance between the curve and line is not large suggesting moderate predictive power. The curve approaches top-left corner but doesn't get close at all indicating the model may not be optimal at identifying true positives, churn [1] while avoiding false positives, churn [1]. The curve appears to be in the range 0.7–0.8, indicating a useful model but not reliable.
+Below, let's look at the ROC Curve (Receiver Operating Characteristic Curve) for this classification model. The X-axis displays specificity or false positive rate which measures how often the model incorrectly predicts positive class [churn=0] when class is truly negative [churn=1]. The Y-axis displays sensitivity or true positive rate which measures how well the model predicts positive class [churn=0] when class is truly positive [churn=0]. The curve in blue plots predicted probabilities. The diagonal line represents no predictive power while any curve above it indicates the model is better at predicting. The area under the curve (AUC) measures overall ability (range 0 to 1) to distinguish between classes; 1 being perfect and <0.5 being worse than random guessing. Interpretation: The blue curve lies above diagonal line indicating the model performs better than random guessing. However, the distance between the curve and line is not large suggesting moderate predictive power. The curve approaches top-left corner but doesn't get close at all indicating the model may not be optimal at identifying true positives, churn [1] while avoiding false positives, churn [1]. The curve appears to be in the range 0.7–0.8, indicating a useful model but not reliable.
 
 ```{r ROC Curve}
 library(pROC)
@@ -1719,16 +1717,31 @@ The results and comparison are displayed in *Table 5* below for reference.
     <td class="tg-7zrl"><span style="font-weight:normal">XGBoost with Cumulative Sum</span></td>
     <td class="tg-8d8j"><span style="font-weight:normal">30.18</span></td>
   </tr>
-</tbody></table>
+</tbody></table>  
+
+
+**Future analyses**
+
+Looking at how tuning the RF models was so powerful, there are several options in performing further analysis and gaining insights to this dataset. Below are some  additional techniques that can be expanded upon (some I explored above):
+
+1.*Further data processing*: There appeared to be several OPCO's that have similar names with one character or alphabet off, hence, many could actually be the same OPCO. This could dramatically improve the quality of the data. This was noticed just on the surface, however there could be more opportunities with data processing that may prove extremely helpful with model accuracy.  
+2.*Lag Features*: Lag features allow you to look back at the previous value of a variable based on another. For example, you might want to look at the qtyOrdered from the last order to see if there’s a pattern over time.  
+3.*Rolling Mean and Sum*: A rolling mean or sum of qtyOrdered can capture trends within a specific window of previous orders. For example, a rolling mean over the last three orders gives an idea of recent ordering patterns.  
+4.*Cumulative Sum*: Cumulative sums provide a running total and can show overall demand over time, in this case qtyOrdered for each Class.  
+5.*Difference in Days Between Orders*: The time gap between orders (RequestedDeliveryDate) for each Class can also be useful to track ordering frequency patterns.  
+6.*Summary Statistics on Entire Group History*: We could calculate overall statistics like mean and standard deviation for each Class over the entire dataset (which will stay constant across all records in that class) and include in our model.
+
 
 ### Conclusion
 
-From reviewing several pieces of published literature, it is clear that the Random Forest algorithm is widely used. It has demonstrated high accuracy and adaptability across a variety of tasks. It's been effective in making generalizations in high-dimensional problems; real-world data which is noisy and incomplete. It is unlike other algorithms in that we have the benefit of averaging predictions over hundreds of trees. Mean Decrease Accuracy and Mean Decrease Gini shed light on influential variables that are useful for further research. Random Forest's widespread use stems from it's versatility, robustness and strong performance with minimal tuning. However, despite these strengths, there is a gap between it's theoretical understanding and the algorithm's practical performance. The algorithm is difficult to analyze and its basic mathematical properties are still not well understood. [@Biau2016-so] Random Forests lack an easily interpretable framework for understanding how certain variables impact outcomes. All in all, while certain theoretical aspects remain unexplored, Random Forests will continue to be widely applied due to their performance and flexibility with complex datasets. Further research on improving theoretical understanding as well as developing methods to increase interpretability, will certainly broaden the scope and application of Random Forests. 
+From reviewing several pieces of published literature, it is clear that the Random Forest algorithm is widely used. It has demonstrated high accuracy and adaptability across a variety of tasks. It's been effective in making generalizations in high-dimensional problems; real-world data which is noisy and incomplete. It is unlike other algorithms in that we have the benefit of averaging predictions over hundreds of trees. Mean Decrease Accuracy and Mean Decrease Gini shed light on influential variables that are useful for further research. Random Forest's widespread use stems from it's versatility, robustness and strong performance with minimal tuning. However, despite these strengths, there is a gap between it's theoretical understanding and the algorithm's practical performance. The algorithm is difficult to analyze and its basic mathematical properties are still not well understood. [@Biau2016-so] Random Forests lack an easily interpretable framework for understanding how certain variables impact outcomes. As far as what I found researching the topic through my models - it was evident that the algorithm handled my dataset pretty easily. There was high-dimentionality in the dataset and definitely some noise, but the algorithm did not have trouble generalizing predictions. Little data processing and model tuning proved to improve accuracy on all my models. I would certainly dive a little deeper into the data and perform additional cleansing to create more reliability in my RF models.
+
+All in all, while certain theoretical aspects remain unexplored, Random Forests will continue to be widely applied due to their performance and flexibility with complex datasets. Further research on improving theoretical understanding as well as developing methods to increase interpretability, will certainly broaden the scope and application of Random Forests. 
 
 
 ## APPENDIX
 
-SQL used for data extraction – Actual names have been masked in the interest of a NDA. [Names have been replaced by a, b, c, etc]
+SQL used for data extraction – Actual names have been masked in the interest of a NDA. [Names have been replaced by a, b, c, etc in addition to the actual masking] Automatic masking function was not used in this case due to the limited number of customers and specific naming. 
 
 ```
 -- -----------------------------
