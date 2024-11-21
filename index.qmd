@@ -7,6 +7,7 @@ date-format: long
 format:
   html:
     code-fold: true
+    embed-resources: true
 course: Capstone Projects in Data Science
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
@@ -280,161 +281,7 @@ Below you will find the data dictionary of the SSI Sales data.
 
 The data available in a CSV file was read into and loaded in RStudio. Below is a snapshot of the file. The base file had 33,818 observations and 17 variables in the data.
 
-```{r, eval = FALSE}
-library(tidyverse)
-library(knitr)
-SaleData <- read_csv('/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/Data/DataSet1.csv') 
-
-kable(head(SaleData))
-```
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
-  overflow:hidden;padding:3px 1px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:12px;
-  font-weight:normal;overflow:hidden;padding:3px 1px;word-break:normal;}
-.tg .tg-2b7s{text-align:right;vertical-align:bottom}
-.tg .tg-qag3{background-color:#A4C2F4;font-weight:bold;text-align:left;vertical-align:bottom}
-.tg .tg-z5rg{color:#B0B0B0;font-style:italic;text-align:left;vertical-align:bottom}
-.tg .tg-7zrl{text-align:left;vertical-align:bottom}
-</style>
-<table class="tg"><thead>
-  <tr>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">OPCO</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesOrderID</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">CustomerPO</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Product</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Description</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Substrate</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">RequestedDeliveryDate</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">DateFulfilled</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">qtyOrdered</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">QuantityFulfilled</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">UnitPrice</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">TotalPrice</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">Class</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">ShipToName</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">ShipToAddress</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesOrderStatus</span></th>
-    <th class="tg-qag3"><span style="font-weight:bold;background-color:#A4C2F4">SalesItemStatus</span></th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">WS-INDSC-02</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Wings .75" Label Sweet DineLink 500/rl</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">122</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">122</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">2.5</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">305</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">WS-INDHG-02</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Wings .75" Label Honey Garlic 500/rl</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">66</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">66</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">2.5</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">165</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando - Millenia</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">9969-2</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Subtotal</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/22</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10/13/2022</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">0</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1105</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Click &amp; Chew</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Berl Company - Orlando</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Michael B 4700 Millenia BLVD Suite 405, Orlando, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">8341</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">CG-SW-02 4M</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss Sandwich Wrap 13x13</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">paper</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">4/13/22</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">4/19/2022</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">3</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">3</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">84</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">252</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Berl Company</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">1506 East Buena Vista Dr, Orlando, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">8341</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Shipping Charge</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Shipping Charge</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">other</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">4/13/22</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">4/19/2022</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">43.69</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">43.69</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Berl Company</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Disney Springs</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">1506 East Buena Vista Dr, Orlando, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-  <tr>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Lake Buena Vista</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">10691</span></td>
-    <td class="tg-z5rg"><span style="font-weight:normal;font-style:italic;color:#B0B0B0">NA</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">CG-CBX-01</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss Catering Box 2 Sauce Holders each side 40/bundle</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">cardboard</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">2/1/23</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">1/31/2023</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">2</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">2</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">79.6</span></td>
-    <td class="tg-2b7s"><span style="font-weight:normal">159.2</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Bird Boss</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">.Bird Boss - Lake Buena Vista</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">1506 E. Buena Drive Suite A, Lake Buena Vista, FL</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-    <td class="tg-7zrl"><span style="font-weight:normal">Fulfilled</span></td>
-  </tr>
-</tbody></table>
+<img src="/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/RawData.png" alt="Model 1" width="1100">
 
 
 Below you will find visualizations of some of the key data features used in this research paper. The distributions helped uncover negative values, outliers and aided with data processing.
@@ -594,10 +441,10 @@ Below you will find **Table 1** with some statistics summaries of the data.
 
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:10px;
+  overflow:hidden;padding:2px 4px;word-break:normal;line-height:0.5;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:10px;
+  font-weight:normal;overflow:hidden;padding:2px 4px;word-break:normal;line-height:0.5;}
 .tg .tg-266k{background-color:#9b9b9b;border-color:inherit;text-align:left;vertical-align:top}
 .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
 .tg .tg-py60{background-color:#ffffc7;border-color:inherit;font-weight:bold;text-align:center;vertical-align:top}
@@ -801,9 +648,9 @@ Below you will find **Table 1** with some statistics summaries of the data.
 <table class="tg" style="undefined;table-layout: fixed; width: 743px"><colgroup>
 <col style="width: 63px">
 <col style="width: 134px">
-<col style="width: 201px">
-<col style="width: 179px">
-<col style="width: 166px">
+<col style="width: 180px">
+<col style="width: 160px">
+<col style="width: 150px">
 </colgroup>
 <thead>
   <tr>
