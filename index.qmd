@@ -6,10 +6,16 @@ date: '`r Sys.Date()`'
 date-format: long
 format:
   html:
+    toc: true        # Enables the table of contents
+    toc-location: left
+    toc-title: "Table of Contents"
+    toc-depth: 3     # (Optional) Sets the depth of heading levels included (e.g., H1 and H2)
+    number-sections: true # (Optional) Adds numbering to section headings
     code-fold: true
     embed-resources: true
 course: Capstone Projects in Data Science
 bibliography: references.bib # file contains bibtex for references
+csl: ieee.csl
 #always_allow_html: true # this allows to get PDF with HTML features
 self-contained: true
 execute: 
@@ -21,12 +27,12 @@ editor:
 ---
 
 
-## 1 Introduction
+## Introduction
 
-The Random Forest algorithm is a supervised ensemble method used to make predictions. What does this mean? Let’s take a step back and explain Decision trees first. Decision tree, another machine learning algorithm, is a flow chart classifier with nodes and branches. Imagine a tree-like structure. Each internal node represents a “test” on an attribute (feature). Each branch represents the outcome of the test. Each leaf node represents a class label; decision taken after computing all attributes. The path taken from the root to the leaf represents classification rules. These trees have a lot of advantages such as mirroring human decision making, being able to handle numerical and categorical data, performing well with large datasets, de-emphasizing irrelevant features, etc. However, there are some limitations. A small change in the training data can result in a large change in final predictions, the algorithm cannot guarantee returning globally optimal tree and overfitting. Overfitting occurs when overly-complex trees do not generalize well from the training data. We can “prune” decision trees which reduces the depth of complex trees and eliminates small classes. However, pruning is expensive and counter-intuitive in that we are trying to fix a bad model. Instead, we can build a better model a.k.a Random Forests. Ensemble methods are the key behind Random Forests. They are motivated by averaging techniques which means combining outputs from multiple trees to improve accuracy and generalization.
+The Random Forest algorithm is a supervised ensemble method used to make predictions. What does this mean? Let’s take a step back and explain Decision trees first. Decision tree, another machine learning algorithm, is a flow chart classifier with nodes and branches. Imagine a tree-like structure. Each internal node represents a “test” on an attribute (feature). Each branch represents the outcome of the test. Each leaf node represents a class label: the decision taken after computing all attributes. The path taken from the root to the leaf represents classification rules. These trees have a lot of advantages such as mirroring human decision making, being able to handle numerical and categorical data, performing well with large datasets, de-emphasizing irrelevant features, etc. However, there are some limitations. A small change in the training data can result in a large change in final predictions, the algorithm cannot guarantee returning globally optimal tree and overfitting. Overfitting occurs when overly-complex trees do not generalize well from the training data. We can “prune” decision trees which reduces the depth of complex trees and eliminates small classes. However, pruning is expensive and counter-intuitive in that we are trying to fix a bad model. Instead, we can build a better model a.k.a Random Forests. Ensemble methods are the key behind Random Forests. They are motivated by averaging techniques which means combining outputs from multiple trees to improve accuracy and generalization.
 
 
-## 2 Literature Reviews
+## Literature Reviews
 
 1. The book ‘Data Mining with decision trees: theory and applications’[@Rokach_undated-sg] explains the concepts of decision trees in detail and also all the benefits of this methodology. Due to it’s simple technique in predicting and explaining relationships between measurements about an item and its target value, the use of Decision Trees is very popular and common in the world of data mining. There are several key features of decision trees that are advantageous. Decision Trees are self-explanatory, easy to follow, has relatively small computational effort and high predictive performance, useful for large datasets and is flexible in handling various types of data like nominal, numeric, and textual. Decision Trees classify a target as a recursive partition. It consists of nodes that form a “root” with no incoming edges.  Decision Trees are popular for their simplicity and transparency, therefore, if decision trees become too complicated, in other words have too many nodes, they become useless. For complex trees, other procedures should be developed to simplify interpretation. The book covers pre-pruning, post-pruning and cost-complexity pruning to prevent overfitting and improve generalization of decision trees. The book also examines cross-validation and bootstrapping as validation metrics for evaluating performance, and accuracy of decision trees. The book touches upon some common algorithms for decision tree induction such as ID3, C4.5, CART, CHAID, and QUEST. It also details the disadvantages of decision trees. One such disadvantage is the nearsighted nature of decision tree induction algorithms where inducers look only one level ahead. Such strategies prefer tests that score high in isolation and may overlook combinations of attributes. Using deeper lookahead strategies is considered computationally expensive and not proven useful. All in all, the book is a great guide for anyone that wants to understand decision trees in data mining and its application to practical use cases. 
 
@@ -38,15 +44,15 @@ The Random Forest algorithm is a supervised ensemble method used to make predict
 Random forests method can be particularly beneficial with ecological data since i) ecological data is often high dimensional with nonlinear and complex interactions among variables and ii) has many missing values among measured variables. Traditional statistical methods such as GLMs may lack in uncovering patterns and relationships we are seeking.  Three different ecological data sets were used in this study: invasive plant species, rare lichen species, and cavity-nesting birds. Using these data sets, the Random forests method was compared to four other classification methods – LDA, logistic regression, additive logistic regression, and classification trees.  Following predictions were made: the presence of invasive species in Lava Beds National Monument, presence of rare lichen species in the Pacific Northwest, and nest presence for cavity-nesting birds in Uinta Mountains, Utah. The random forest method showed high accuracy across all three data sets especially in identifying presences and identifying absences. The paper finally encourages the random forest method’s broader adoption in the field of ecology.
 
 
-4. As stated in Leo Breiman’s paper on Random Forests, published in January of 2001: “A random forest is a classifier consisting of a collection of tree-structured classifiers {h(x,Θk ), k=1, ...} where the {Θk} are independent identically distributed random vectors and each tree casts a unit vote for the most popular class at input x.[@Breiman_undated-tp] This paper describes the foundation and concepts of the random forest algorithm and theorizes its ability to improve classification accuracy by combining multiple decision trees. The goal of the paper is to demonstrate the effectiveness of random forests in prediction. The paper uses Amit and Geman [1997] analysis to explain that the accuracy of random forests depends on the strength of the individual tree classifiers and a measure of the dependence between them. It states the various formulas of the algorithm that are responsible for characterizing accuracy of random forests. Additionally, the author discusses using random features for lowering generalization errors than other algorithms including the use of out-of-bag estimates to monitor error, strength and correlation. He discusses his experiments and results and the use of the algorithm with bagging and without. Furthermore, he discusses all the advantages of random forest method: handling large datasets with high dimentionality, providing estimates of variable importance, and dealing with missing data. He states that the use of random inputs and random features while using Random Forest methodology produce good results in classification, less in regression examples. Additionally, he observed lower error rates on his tests on larger data sets as opposed to smaller datasets and suggested that different injections of randomness can produce better results.
+4. As stated in Leo Breiman’s paper on Random Forests, published in January of 2001: “A random forest is a classifier consisting of a collection of tree-structured classifiers {h(x,Θk ), k=1, ...} where the {Θk} are independent identically distributed random vectors and each tree casts a unit vote for the most popular class at input x.[@Breiman_undated-tp] This paper describes the foundation and concepts of the random forest algorithm and theorizes its ability to improve classification accuracy by combining multiple decision trees. The goal of the paper is to demonstrate the effectiveness of random forests in prediction. The paper uses Amit and Geman [1997] analysis to explain that the accuracy of random forests depends on the strength of the individual tree classifiers and a measure of the dependence between them. It states the various formulas of the algorithm that are responsible for characterizing accuracy of random forests. Additionally, the author discusses using random features for lowering generalization errors than other algorithms including the use of out-of-bag estimates to monitor error, strength and correlation. He discusses his experiments and results and the use of the algorithm with bagging and without. Furthermore, he discusses all the advantages of random forest method: handling large datasets with high dimensionality, providing estimates of variable importance, and dealing with missing data. He states that the use of random inputs and random features while using Random Forest methodology produce good results in classification, less in regression examples. Additionally, he observed lower error rates on his tests on larger data sets as opposed to smaller datasets and suggested that different injections of randomness can produce better results.
 
 
 5. The paper "Financial Forecast in Business and an Application Proposal: The Case of Random Forest Technique" [@Orhan2023-hm] explores the viability of the Random Forest (RF) algorithm in predicting future financial performance. The study uses data from five companies whose shares have been traded on Borsa Istanbul between 2009 and 2020. Financial statements (between 2009 and 2020) of these businesses were obtained from the Public Disclosure Platform website. Variables such as current & fixed assets, equity, revenue, and net income have been estimated by use of the random forest technique.  As stated in the paper, “Random Forest is frequently preferred in classification and regression analyses because it produces reliable results by using the average of more than one decision tree and allows working with any number of trees (Biau-Scornet,2016:198).”  By leveraging 113 variables, including macroeconomic indicators like inflation, exchange rates, and GDP growth, the RF model showed an overall forecasting accuracy of 90.9%.  The research concludes that Random Forest is an effective tool for financial forecasting in businesses, particularly when coupled with non-financial and macroeconomic factors. However, further enhancements, such as the inclusion of additional external variables, could improve its predictive power in volatile periods like 2020. The study promotes RF as a valuable model for decision-makers in financial planning and risk management, offering high reliability in predicting future financial outcomes.
 
 
-6. As stated in the article, “The theoretical framework examining business performance originates in the paradigm of industrial organization developed during 1940-1950 by Bain and Mason (Porter, 1981) which was further improved by Porter (1979), Schmalensee (1985) and Rumelt (1991).”  Differences in business performance and competitive positions have been studied for decades. The paper titled "Foreign Versus Local Ownership and Performance in Eastern Versus Western EU: A Random Forest Application" [@Horobet2023-bv] discusses how foreign and local ownership influences business performance across the European Union using the Random Forest machine learning algorithm. The study explores differences between Eastern and Western EU firms in 27 industries from 9 sectors between 2009 and 2016. Variables studied are personnel costs, labor productivity, and gross investment. The model results show that personnel costs per employee are the most significant variable differentiating foreign from locally owned companies. The model was applied to 1,080 business units from the EU, each from a different sector and industry, but also region (Eastern or Western part of the EU), and operating under different ownership, i.e., foreign or locally-owned. The main objective of classifying economic activity within the EU is that the authors wanted to identify whether business performance brought on by foreign versus local ownership may be explained by headquarters’ location, industry of operation and a reduced set of other performance variables. It was concluded that locally owned companies have an edge against the foreign-owned ones in terms of the importance of their gross investments compared to turnover and of the ratio between value added and turnover in eight out of nine sectors. These results are a sign that there is a stronger propensity of locally-owned companies towards investments versus a weaker investment activity of foreign-owned companies.
+6. As stated in the article, “The theoretical framework examining business performance originates in the paradigm of industrial organization developed during 1940-1950 by Bain and Mason (Porter, 1981) which was further improved by Porter (1979), Schmalensee (1985) and Rumelt (1991).”  Differences in business performance and competitive positions have been studied for decades. The paper titled "Foreign Versus Local Ownership and Performance in Eastern Versus Western EU: A Random Forest Application" [@Horobet2023-bv] discusses how foreign and local ownership influences business performance across the European Union using the Random Forest machine learning algorithm. The study explores differences between Eastern and Western EU firms in 27 industries from 9 sectors between 2009 and 2016. Variables studied are personnel costs, labor productivity, and gross investment. The model results show that personnel costs per employee are the most significant variable differentiating foreign from locally owned companies. The model was applied to 1,080 business units from the EU, each from a different sector and industry, but also region (Eastern or Western part of the EU), and operating under different ownership, i.e., foreign or locally owned. The main objective of classifying economic activity within the EU is that the authors wanted to identify whether business performance brought on by foreign versus local ownership may be explained by headquarters’ location, industry of operation and a reduced set of other performance variables. It was concluded that locally owned companies have an edge against the foreign-owned ones in terms of the importance of their gross investments compared to turnover and of the ratio between value added and turnover in eight out of nine sectors. These results are a sign that there is a stronger propensity of locally owned companies towards investments versus a weaker investment activity of foreign-owned companies.
 
-## 3 Methods
+## Methods
 
 ### Decision Trees – Random Forest
 
@@ -85,7 +91,7 @@ rpart.plot(tree_model, main = "Decision Tree Visualization")
 
 **Forest Size** - One hyperparameter (parameter whose value controls the learning process) in the forest is the number of trees (ntree) in the forest. It is common to use a larger number of trees, example 100, 500, etc., to reduce variance. We may start with 100 trees in our forest and each tree will provide a bit different prediction for the target variable. Our final output will be based on the aggregate of all trees in our forest. The more trees, the better however the trade-off is computational cost.
 
-#### Main Components of the Random Forest Method
+### Main Components of the Random Forest Method
 
 1. **Bootstrap Aggregation (Bagging):** generating multiple subsets of training data by randomly sampling with replacement. For example, Tree 1 may include sales records 1, 2, 3, 4, and 10 multiple times, while Tree 2 may include records 4 and 10 also. Each decision tree in the forest is trained on a different bootstrap sample. Each tree can independently "overfit" its bootstrap sample, but when combined, the average prediction is much more accurate and less prone to overfitting.
 
@@ -99,7 +105,7 @@ rpart.plot(tree_model, main = "Decision Tree Visualization")
 
 4.	**Out-of-Bag (OOB) Error Estimation:** This provides an internal method of validating the model’s accuracy without needed a separate test set. Since each tree is trained on a bootstrap sample, some data points are left out, called Out-of-Bag samples. These OOB samples are used to get unbiased estimates of model accuracy without the need for a separate validation set. For example, if record 100 of our data was not used to train Tree 1, Tree 1 can still predict Total Price for that record, and we can compare the prediction to the actual Total Price.
 
-#### Mathematical Concepts of the Random Forest Method
+### Mathematical Concepts of the Random Forest Method
 
 
   1. `Mean Squared Error (MSE)`: For a continuous target variable, such as *Total Price*, the criteria for splitting at each node is based on minimizing the `(MSE)`:
@@ -130,7 +136,7 @@ where:
 •	$P_k$ represents the proportion of samples of class k in the node and K is the number of classes.
 
 
-#### Statistical Programming
+### Statistical Programming
 
 Data manipulation, analysis and the Random Forest algorithm were run using R version 4.4.1 (2024-06-14) in RStudio "Cranberry Hibiscus" Release for macOS. The base dataset was loaded in Rstudio using read_csv() package that takes in comma-separated files which is the format SSI data was made available. Characteristics of the data are summarized using counts and percent for continuous variables and mean and standard deviation for categorical variables. 
 
@@ -155,11 +161,11 @@ Several R packages were installed, including the randomForest package available 
 **•	predict:** This is a generic function in R to run predictions from the results of various model                  fitting functions. The model was the randomForest model in this case and using the                    trained data,   a new test data set was used to make predictions. [@cite_R]
 
 
-## 4 Analysis and Results
+## Analysis and Results
 
-### 4.1 Data Description 
+### Data Description 
 
-The source data contained sales transactions for a span of 48 months and came from SSI, a Florida based B2B2C type company. The company offers custom packaging in the food industry. It offers custom branding and design as well as actual supply of the products. Customers may have transactional based sales where each order serves as it’s own agreement or customers may have a long term contract where they agree to purchase a product or several products through the course of a six month period or a year, or agree to purchase a set quantity over a period of time, for example. Once these agreements are established, the customer instructs it’s distributor to purchase from SSI and deliver to them. So, the purchase order, in reality comes from this distributor and not the end client. The data extracted contains information on both the distributor as well as the end client. It also contains product information as well as delivery location. The SQL code used to extract this data is included in the Appendix. 
+The source data contained sales transactions for a span of 48 months and came from SSI, a Florida based B2B2C type company. The company offers custom packaging in the food industry. It offers custom branding and design as well as actual supply of the products. Customers may have transactional based sales where each order serves as it’s own agreement or customers may have a long-term contract where they agree to purchase a product or several products through the course of a six-month period or a year, or agree to purchase a set quantity over a period of time, for example. Once these agreements are established, the customer instructs it’s distributor to purchase from SSI and deliver to them. So, the purchase order, in reality comes from this distributor and not the end client. The data extracted contains information on both the distributor as well as the end client. It also contains product information as well as delivery location. The SQL code used to extract this data is included in the Appendix. 
 
 Below you will find the data dictionary of the SSI Sales data.
 
@@ -277,7 +283,7 @@ Below you will find the data dictionary of the SSI Sales data.
   </tr>
 </tbody></table>
 
-### 4.2 Load Data
+### Load Data
 
 The data available in a CSV file was read into and loaded in RStudio. Below is a snapshot of the file. The base file had 33,818 observations and 17 variables in the data.
 
@@ -331,7 +337,7 @@ These visualizations were helpful in realizing what data processing was needed a
   C. There are missing `Substrate` values (N/A and Other) in the amount of $2,888,731 
 
 
-### 4.3 Preprocessing of Data
+### Preprocessing of Data
 
 The dataset consisted of sales returns and credits to the customer. These were excluded in order to avoid false outcomes and predictions. There were also records related to shipping costs that were excluded. As an example, there may have been out of the norm activity when SSI encountered inbound shipment delays and SSI needed to airfreight product to customers at a higher than normal shipping rate. We do not want skewed results and hence, this activity was omitted.
 
@@ -688,7 +694,7 @@ Below you will find **Table 1** with some statistics summaries of the data.
 </table>
 
 
-### 4.4 Analysis
+### Analysis
 
 #### Test the Methodology
 
@@ -727,7 +733,7 @@ rf_model2_test <- randomForest(TotalPrice ~ OPCO + Product + Substrate + Request
 
 **Feature Importance**: The results showed that Model 2 relied more heavily on `qtyOrdered` and `UnitPrice` for accurate predictions, and it incorporated factors like `Product, Substrate, and RequestedDeliveryDate` to refine predictions better than compared to Model 1. Looking at the prediction plots for both model 1 and 2, it appeared the points were very close to or overlapping along the diagonal line which indicated that the model was making accurate predictions. There didn't appear to be a significant difference between the two models.
 
-**OBB Error**: The OOB Error was not directly listed in the model outputs but we can infer about the models' performance from the numbers provided. The mean squared residuals for both models was extremely high which means that the squared differences between the observed values and the predicted values was high. However, the variance percentage estimates for the two models were very similar at 97.56% and 97.61%. Both models indicated that they can explain nearly all the variance in TotalPrice based on the features provided and suggest a low OOB error.
+**OBB Error**: The OOB Error was not directly listed in the model outputs, but we can infer about the models' performance from the numbers provided. The mean squared residuals for both models were extremely high which means that the squared differences between the observed values and the predicted values were high. However, the variance percentage estimates for the two models were very similar at 97.56% and 97.61%. Both models indicated that they can explain nearly all the variance in TotalPrice based on the features provided and suggest a low OOB error.
 
 **Proximity Matrix**: The heatmap of proximity matrix showed dark red colors indicating higher proximity, meaning that those two observations were often used in the same leaf node across the trees in the random forest. 
 
@@ -847,11 +853,11 @@ Below are some of the output graphs from the Model 1 test above.
 
 Now that we are more familiar with the Random Forest methods, let's move on to some relevant problems and use cases that businesses typically face. We will consider two such cases; one is to predict <u>`Customer Churn`</u> (Classification model) and another to predict <u>`Inventory Demand`</u> (Regression model).
 
-### 4.5 Analysis and Results
+### Results
 
-#### 1st Use Case
+### Use Case 1
 
-**Customer Churn**: A Random Forest Classification model was created to predict Customer retention using some of the features from the SSI Sales dataset. Predicting churn is crucial because it allows organizations to proactively engage customers who may leave, improving retention and reducing revenue loss. A churn indicator was not available in the historical sales data, therefore, it was defined and appended to the dataset. If the last order date for a Client was older than 2 months from the date the extract was taken, a churn indicator of 1 was selected and if order date was within the prior 2 months, a churn indicator of 0 was selected [churn (1) and no-churn (0)]. Churn was based on purchase frequency; assuming clients typically order monthly, clients were flagged in case an order had not been placed in more than two months. In that case, the client was considered churned. 
+**Customer Churn**: A Random Forest Classification model was created to predict Customer retention using some of the features from the SSI Sales dataset. Predicting churn is crucial because it allows organizations to proactively engage customers who may leave, improving retention and reducing revenue loss. A churn indicator was not available in the historical sales data, therefore, it was defined and appended to the dataset. If the last order date for a Client was older than 2 months from the date the extract was taken, a churn indicator of 1 was selected and if order date was within the prior 2 months, a churn indicator of 0 was selected [churn (1) and no-churn (0)]. Churn was based on purchase frequency, assuming clients typically order monthly; clients were flagged in case an order had not been placed in more than two months. In that case, the client was considered churned. 
 
 ```{r, echo=FALSE}
 # Since we don't have a variable for churn, Define churn based on purchase frequency
@@ -908,7 +914,7 @@ rf_model_churn <- randomForest(churned ~ Product + DateFulfilled +
 ```
 The model was created using tree size of 300 (ntree = 300). Feature importance and proximity measure were set within the model for further analysis. The createDataPartition() function in R was used to split the data into training and test sets based on target variable `churned` and it's distribution was maintained between the two sets. 80% of the data was used to train data and 20% was used to test. The training set was used to train the random forest model and helped it learn the relationships between the predictors and the target variable. The testing set was used to evaluate the model's performance. The number of variables were randomly sampled at each split (mtry = 3) using the default value of 3. We review the churn model using the various visualizations below.   
 
-Using the tree depth and splits below, let's explore how many times each feature was used to split the nodes. This is a graph of distribution of minimal depth for the variables used in this RF model. It provides us information on how frequently these variables appear at different depths across the ensemble of trees. The minimal depth (0 to 8) is the position in a tree where a variable is first used to split. Lower depths (0, 1, 2 for example) indicate that the variable was used early in the tree, and suggests higher importance. The mean minimal depth for each variable is indicated by the black vertical line and labeled numerically. Interpretation: `Class` is the most important variable in this Random Forest, as it frequently appears at the root or near the root of the trees. `Product` and `DateFulfilled` are moderately important and often used early in splits. Lastly, `qtyOrdered` has the least importance in this model, as it is used at deeper levels in the trees.
+Using the tree depth and splits below, let's explore how many times each feature was used to split the nodes. This is a graph of distribution of minimal depth for the variables used in this RF model. It provides us information on how frequently these variables appear at different depths across the ensemble of trees. The minimal depth (0 to 8) is the position in a tree where a variable is first used to split. Lower depths (0, 1, 2 for example) indicate that the variable was used early in the tree and suggests higher importance. The mean minimal depth for each variable is indicated by the black vertical line and labeled numerically. Interpretation: `Class` is the most important variable in this Random Forest, as it frequently appears at the root or near the root of the trees. `Product` and `DateFulfilled` are moderately important and often used early in splits. Lastly, `qtyOrdered` has the least importance in this model, as it is used at deeper levels in the trees.
 
 ```{r Tree Depth and Splits}
 library(randomForestExplainer)
@@ -1135,12 +1141,12 @@ ggplot(testData, aes(x = churned, y = predicted_classes)) +
 
 ```
 
-##### Customer Churn Model Evaluation
+#### Customer Churn Model Evaluation
 
-The Model was evaluated using the statistics provided in the confusion matrix. The accuracy on the final model proved to be 80.3% but it was achieved only after several tweaks to the model for example correcting the date format and re-grouping. Originally only a 51% accuracy was seen which meant the model correctly classified about 51% of the cases. However, 80.3% accuracy was eventually achieved to predict churn. The No Information Rate (NIR) was 0.8192, which meant that always predicting majority class (0) would result in 81.92% accuracy. Kappa of 0.5012 indicates moderate agreement between predicted and actual classifications beyond chance, hence did fairly in differenciating classes. Sensitivity (for class 0) of 0.7860 indicated the model correctly identifies 78.6% of the actual 0 cases. This was fairly strong but could still benefit from improvement.
-Specificity (for class 1) of 0.8812 suggests the model correctly identifies 88.12% of the actual 1 cases, indicating strong performance in identifying class 1 cases. Positive Predictive Value (PPV for class 0) of 0.9677 suggests that when the model predicts 0, it is correct 96.77% of the time. This indicates a high precision for class 0. Negative Predictive Value (NPV for class 1) of 0.4762, suggests that when the model predicts 1, it’s correct only 47.62% of the time. This lower NPV suggests that the model might still be missing some 1 cases. The P-value (<2e-16) for Mcnemar’s Test indicates a statistically significant difference between the error rates for 0 and 1 predictions. This could mean that the model still struggles slightly with misclassification between classes. Over all, the model has a good balance (0.8336) between identifying both classes, though it is better at predicting class 0. 
+The Model was evaluated using the statistics provided in the confusion matrix. The accuracy on the final model proved to be 80.3% but it was achieved only after several tweaks to the model for example correcting the date format and re-grouping. Originally only a 51% accuracy was seen which meant the model correctly classified about 51% of the cases. However, 80.3% accuracy was eventually achieved to predict churn. The No Information Rate (NIR) was 0.8192, which meant that always predicting majority class (0) would result in 81.92% accuracy. Kappa of 0.5012 indicates moderate agreement between predicted and actual classifications beyond chance, hence, did fairly in differentiating classes. Sensitivity (for class 0) of 0.7860 indicated the model correctly identifies 78.6% of the actual 0 cases. This was fairly strong but could still benefit from improvement.
+Specificity (for class 1) of 0.8812 suggests the model correctly identifies 88.12% of the actual 1 cases, indicating strong performance in identifying class 1 cases. Positive Predictive Value (PPV for class 0) of 0.9677 suggests that when the model predicts 0, it is correct 96.77% of the time. This indicates a high precision for class 0. Negative Predictive Value (NPV for class 1) of 0.4762, suggests that when the model predicts 1, it’s correct only 47.62% of the time. This lower NPV suggests that the model might still be missing some 1 cases. The P-value (<2e-16) for Mcnemar’s Test indicates a statistically significant difference between the error rates for 0 and 1 predictions. This could mean that the model still struggles slightly with misclassification between classes. Overall, the model has a good balance (0.8336) between identifying both classes, though it is better at predicting class 0. 
 
-#### 2nd Use Case
+### Use Case 2
 
 **Inventory Demand Forecast**: A Random Forest Regression model was created to forecast inventory using some of the features from the SSI Sales dataset. The goal of *Inventory Demand Forecast* is to predict quantity that will be ordered for each product in future periods. Certain Classes were omitted from the data that were irrelevant as well as records with missing Substrate. Additional variables were calculated to pass to the model such as day, week and month of the year. The data was partitioned as prior: 80% of the data was used to train the model and 20% was used to test. Feature importance and proximity measure were set within the model for further analysis and the model was evaluated using the root mean square error rate.
 
@@ -1227,13 +1233,13 @@ importance(rf_inventory)
 ```
 Just like in the first use case, let's investigate the feature importance details for this model. OPCO at 30.1% has the highest percent increase in mean squared error (%IncMSE) suggesting the model relies heavily on OPCO for predictions and indicating strong influence on `qtyOrdered`. Month at 29.36% and Product at 27.14% also indicate high importance on model's performance. Looking at the Increase in Node Purity, Product has the highest IncNodePurity (100,229,054) suggesting it is most significant for reducing variability in `qtyOrdered`. `OPCO` (71,703,082) and `UnitPrice` (58,979,972) follow right behind. 
 
-Further, let's explore feature interactions for this model. This calculates of pairwise interactions for all features based on their minimal depth. There are 36 total interactions calculated, with 30 most frequent showing below. 
-- X-axis displays pairs of features involved in interactions
-- Y-axis represents average depth of the splits in the forest where these features occur. Lower values indicate interaction is closer to the root of the trees, therefore more important.
-- Blue bars: Taller bars indicate less critical interaction. Shorter bars indicate more critical interactions.
-- Black dots with error bars: The dots represent mean minimal depth while the bars show variability.
-- Red line is the minimum depth threshold.
-- Color gradient indicates frequency of interaction. Darker color indicates the interaction is observed more frequently. 
+Further, let's explore feature interactions for this model. This calculates pairwise interactions for all features based on their minimal depth. There are 36 total interactions calculated, with 30 most frequent showing below.  
+- X-axis displays pairs of features involved in interactions.  
+- Y-axis represents average depth of the splits in the forest where these features occur. Lower values indicate interaction is closer to the root of the trees, therefore more important.  
+- Blue bars: Taller bars indicate less critical interaction. Shorter bars indicate more critical interactions.  
+- Black dots with error bars: The dots represent mean minimal depth while the bars show variability.  
+- Red line is the minimum depth threshold.  
+- Color gradient indicates frequency of interaction. Darker color indicates the interaction is observed more frequently.   
 
 
 ```{r Feature Interaction, eval=FALSE}
@@ -1297,7 +1303,7 @@ residuals <- testData$qtyOrdered - predictions
 rmse <- sqrt(mean(residuals^2))
 
 ```
-Next, let's apply some strategies to see if we can lower our RMSE and improve model accuracy. First we will apply grouped lagging of the `qtyOrdered` column. We will sort the data first by OPCO, then by Product, and finally by RequestedDeliveryDate. The rows will be in chronological order based on the delivery date. Then we group by OPCO and Product. We will create a new variable called `Lag_qtyOrdered` using the lag() function which will contain the qtyOrdered from the previous order for the same OPCO and Product.
+Next, let's apply some strategies to see if we can lower our RMSE and improve model accuracy. First, we will apply grouped lagging of the `qtyOrdered` column. We will sort the data first by OPCO, then by Product, and finally by RequestedDeliveryDate. The rows will be in chronological order based on the delivery date. Then we group by OPCO and Product. We will create a new variable called `Lag_qtyOrdered` using the lag() function which will contain the qtyOrdered from the previous order for the same OPCO and Product.
 
 ```{r Second Model using Aggregating of Features, eval=FALSE}
 # Create grouping - qtyOrdered feature by grouping with both Class and Product
@@ -1341,7 +1347,7 @@ rmse_aggr <- sqrt(mean(residuals^2)) # 87.76
 ```
 RMSE(w/GroupedLagging): 87.76
 
-RMSE certainly dropped compared to the original regression model. However, let's see if we can continue to get a better result. Next, we will use the grouped lagging feature created in prior step, and apply K-fold Validation into the Random Forest model.
+RMSE certainly dropped compared to the original regression model. However, let's see if we can continue to get a better result. Next, we will use the grouped lagging feature created in prior step and apply K-fold Validation into the Random Forest model.
 
 ```{r Third Model using K-fold Cross Validation, eval=FALSE}
 # RMSE has improved but is still not at a satisfactory level
@@ -1498,7 +1504,7 @@ ggplot(results, aes(x = Actual, y = Predicted)) +
 ```
 <img src="/Users/ss/Documents/HR Misc/Masters/IDC6940 Capstone in Data Science/xgBoost_cumsum.png" alt="Model 1" width="800">
 
-The XGBoost with the addition of cumulative sum of qtyOrdered proved to generate the lowest RMSE of all the regression models run. As noticieable from the Actual vs Predicted plot above, a high level of accuracy is achieved. The predicted values align nicely with the actual.
+The XGBoost with the addition of cumulative sum of qtyOrdered proved to generate the lowest RMSE of all the regression models run. As noticeable from the Actual vs Predicted plot above, a high level of accuracy is achieved. The predicted values align nicely with the actual.
 
 
 #### Inventory Forecast Model Evaluation
@@ -1513,7 +1519,7 @@ On the initial model, a RMSE (Root Mean Square Error) of 106.49 was calculated. 
 
 - *XGBoost w/cumsum*: One final model using a cumulative sum of quantity ordered grouped by OPCO and Product was run which provided the lowest RMSE of 30.18. 
 
-The results and comparison are displayed in *Table 5* below for reference.
+The results and comparison are displayed in **Table 5** below for reference.
 
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
@@ -1567,21 +1573,21 @@ The results and comparison are displayed in *Table 5* below for reference.
 </tbody></table>  
 
 
-**Future analyses**
+### Future Analyses
 
 Looking at how tuning the RF models was so powerful, there are several options in performing further analysis and gaining insights to this dataset. Below are some  additional techniques that can be expanded upon (some I explored above):
 
-1.*Further data processing*: There appeared to be several OPCO's that have similar names with one character or alphabet off, hence, many could actually be the same OPCO. This could dramatically improve the quality of the data. This was noticed just on the surface, however there could be more opportunities with data processing that may prove extremely helpful with model accuracy.  
-2.*Lag Features*: Lag features allow you to look back at the previous value of a variable based on another. For example, you might want to look at the qtyOrdered from the last order to see if there’s a pattern over time.  
-3.*Rolling Mean and Sum*: A rolling mean or sum of qtyOrdered can capture trends within a specific window of previous orders. For example, a rolling mean over the last three orders gives an idea of recent ordering patterns.  
-4.*Cumulative Sum*: Cumulative sums provide a running total and can show overall demand over time, in this case qtyOrdered for each Class.  
-5.*Difference in Days Between Orders*: The time gap between orders (RequestedDeliveryDate) for each Class can also be useful to track ordering frequency patterns.  
-6.*Summary Statistics on Entire Group History*: We could calculate overall statistics like mean and standard deviation for each Class over the entire dataset (which will stay constant across all records in that class) and include in our model.
+1. *Additional Data Processing*: There appeared to be several OPCO's that have similar names with one character or alphabet off, hence, many could actually be the same OPCO. This could dramatically improve the quality of the data. This was noticed just on the surface, however there could be more opportunities with data processing that may prove extremely helpful with model accuracy.  
+2. *Lag Features*: Lag features allow you to look back at the previous value of a variable based on another. For example, you might want to look at the qtyOrdered from the last order to see if there’s a pattern over time.  
+3. *Rolling Mean and Sum*: A rolling mean or sum of qtyOrdered can capture trends within a specific window of previous orders. For example, a rolling mean over the last three orders gives an idea of recent ordering patterns.  
+4. *Cumulative Sum*: Cumulative sums provide a running total and can show overall demand over time, in this case qtyOrdered for each Class.  
+5. *Difference in Days Between Orders*: The time gap between orders (RequestedDeliveryDate) for each Class can also be useful to track ordering frequency patterns.  
+6. *Summary Statistics on Entire Group History*: We could calculate overall statistics like mean and standard deviation for each Class over the entire dataset (which will stay constant across all records in that class) and include in our model.
 
 
-### Conclusion
+## Conclusion
 
-From reviewing several pieces of published literature, it is clear that the Random Forest algorithm is widely used. It has demonstrated high accuracy and adaptability across a variety of tasks. It's been effective in making generalizations in high-dimensional problems; real-world data which is noisy and incomplete. It is unlike other algorithms in that we have the benefit of averaging predictions over hundreds of trees. Mean Decrease Accuracy and Mean Decrease Gini shed light on influential variables that are useful for further research. Random Forest's widespread use stems from it's versatility, robustness and strong performance with minimal tuning. However, despite these strengths, there is a gap between it's theoretical understanding and the algorithm's practical performance. The algorithm is difficult to analyze and its basic mathematical properties are still not well understood. [@Biau2016-so] Random Forests lack an easily interpretable framework for understanding how certain variables impact outcomes. As far as what I found researching the topic through my models - it was evident that the algorithm handled my dataset pretty easily. There was high-dimentionality in the dataset and definitely some noise, but the algorithm did not have trouble generalizing predictions. Little data processing and model tuning proved to improve accuracy on all my models. I would certainly dive a little deeper into the data and perform additional cleansing to create more reliability in my RF models.
+From reviewing several pieces of published literature, it is clear that the Random Forest algorithm is widely used. It has demonstrated high accuracy and adaptability across a variety of tasks. It's been effective in making generalizations in high-dimensional problems; real-world data which is noisy and incomplete. It is unlike other algorithms in that we have the benefit of averaging predictions over hundreds of trees. Mean Decrease Accuracy and Mean Decrease Gini shed light on influential variables that are useful for further research. Random Forest's widespread use stems from it's versatility, robustness and strong performance with minimal tuning. However, despite these strengths, there is a gap between it's theoretical understanding and the algorithm's practical performance. The algorithm is difficult to analyze and its basic mathematical properties are still not well understood. [@Biau2016-so] Random Forests lack an easily interpretable framework for understanding how certain variables impact outcomes. As far as what I found researching the topic through my models - it was evident that the algorithm handled my dataset pretty easily. There was high-dimensionality in the dataset and definitely some noise, but the algorithm did not have trouble generalizing predictions. Little data processing and model tuning proved to improve accuracy on all my models. I would certainly dive a little deeper into the data and perform additional cleansing to create more reliability in my RF models.
 
 All in all, while certain theoretical aspects remain unexplored, Random Forests will continue to be widely applied due to their performance and flexibility with complex datasets. Further research on improving theoretical understanding as well as developing methods to increase interpretability, will certainly broaden the scope and application of Random Forests. 
 
