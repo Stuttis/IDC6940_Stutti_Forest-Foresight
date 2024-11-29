@@ -1231,7 +1231,7 @@ rmse <- sqrt(mean(residuals^2))
 importance(rf_inventory)
 #varImpPlot(rf_inventory)
 ```
-Just like in the first use case, let's investigate the feature importance details for this model. OPCO at 30.1% has the highest percent increase in mean squared error (%IncMSE) suggesting the model relies heavily on OPCO for predictions and indicating strong influence on `qtyOrdered`. Month at 29.36% and Product at 27.14% also indicate high importance on model's performance. Looking at the Increase in Node Purity, Product has the highest IncNodePurity (100,229,054) suggesting it is most significant for reducing variability in `qtyOrdered`. `OPCO` (71,703,082) and `UnitPrice` (58,979,972) follow right behind. 
+Just like in the first use case, let's investigate the feature importance details for this model. OPCO at 40.1% has the highest percent increase in mean squared error (%IncMSE) suggesting the model relies heavily on OPCO for predictions and indicating strong influence on `qtyOrdered`. Month at 29.03% and Product at 27.02% also indicate high importance on model's performance. Looking at the Increase in Node Purity, Product has the highest IncNodePurity (100,229,054) suggesting it is most significant for reducing variability in `qtyOrdered`. `OPCO` (71,703,082) and `UnitPrice` (58,979,972) follow right behind. 
 
 Further, let's explore feature interactions for this model. This calculates pairwise interactions for all features based on their minimal depth. There are 36 total interactions calculated, with 30 most frequent showing below.  
 - X-axis displays pairs of features involved in interactions.  
