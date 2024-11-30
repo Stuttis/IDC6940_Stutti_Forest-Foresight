@@ -1125,7 +1125,8 @@ The confusion matrix provides metrics such as **accuracy, sensitivity, and speci
     <td class="tg-2b7s" colspan="2"><span style="font-weight:normal">'Positive' Class</span></td>
     <td class="tg-2b7s">0</td>
   </tr>
-</tbody></table>
+</tbody></table> 
+
 
 And lastly, let's look at the Actual versus Predicted results using the scatter plot below. The dense clusters in the top-right and bottom-left quadrants indicates strong classification performance for both 0 and 1 classes. The top-left and bottom-right quadrants indicate some misclassified points showing that the model made some errors potentially from an imbalance in the data or that our model poorly generalizes one of the classes.
 
@@ -1345,7 +1346,7 @@ residuals <- testData$qtyOrdered - predictions_aggr
 rmse_aggr <- sqrt(mean(residuals^2)) # 87.76
 
 ```
-RMSE(w/GroupedLagging): 87.76
+**RMSE(w/GroupedLagging): 87.76**
 
 RMSE certainly dropped compared to the original regression model. However, let's see if we can continue to get a better result. Next, we will use the grouped lagging feature created in prior step and apply K-fold Validation into the Random Forest model.
 
@@ -1370,9 +1371,9 @@ rf_model_cv <- train(qtyOrdered ~ Product + OPCO + Substrate + Month + Year +
 
 print(rf_model_cv)
 ```
-RMSE(w/K-fold): 90.09
+**RMSE(w/K-fold): 90.09**
 
-With the K-fold Cross-Validation, RMSE actually increased. Not the direction we want to go. We could certainly continue tuning our Random Forest model. Let's instead test the XGBoost algorithm below using the *xgboost* package in RStudio.
+With the K-fold Cross-Validation, RMSE actually increased. Not the direction we want to go. We could certainly continue tuning our Random Forest model. Let's instead test the XGBoost (Extreme Gradient Boosting) algorithm below using the *xgboost* package in RStudio.
 
 ```{r Fourth Model - XGBoost, eval=FALSE}
 install.packages("xgboost")
@@ -1421,10 +1422,11 @@ rmse_xb <- sqrt(mean((testData$qtyOrdered - predictions)^2))
 
 ```
 
-RMSE(xgboost): 64.03
+**RMSE(xgboost): 64.03**
 
 
-The XGBoost significantly helped lower our RMSE. We will perform one last tuning of our model and use a cumulative sum of qtyOrdered (grouped by OPCO and Product) within the XGBoost model.
+The XGBoost significantly helped lower our RMSE. Consistent with what was found in one of the references reviewed, XGBoost algorithm outperforms the traditional modeling approaches with regard to prediction accuracy. [@jain2015sales]  
+We will perform one last tuning of our model and use a cumulative sum of qtyOrdered (grouped by OPCO and Product) within the XGBoost model.
 
 ```{r Fifth Model - XGBoost w/addition of Cumulative Sum, eval=FALSE}
 library(xgboost)
@@ -1488,7 +1490,7 @@ library(Metrics)
 rmse_xbc <- rmse(results$Actual, results$Predicted)
 print(rmse_xbc)
 ```
-RMSE(xgboost w/cumsum): 30.18
+**RMSE(xgboost w/cumsum): 30.18**
 
 ```{r, eval=FALSE}
 
@@ -1519,7 +1521,7 @@ On the initial model, a RMSE (Root Mean Square Error) of 106.49 was calculated. 
 
 - *XGBoost w/cumsum*: One final model using a cumulative sum of quantity ordered grouped by OPCO and Product was run which provided the lowest RMSE of 30.18. 
 
-The results and comparison are displayed in **Table 5** below for reference.
+For reference and easy comparison, **Table 5** below shows the RMSE from all the models run for Use Case 2.
 
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;}
